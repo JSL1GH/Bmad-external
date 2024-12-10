@@ -1,3 +1,0 @@
-#!/bin/zsh
-
-cmake . -DCMAKE_C_COMPILER=/opt/homebrew/bin/gcc-13 -DCMAKE_CXX_COMPILER=/opt/homebrew/bin/g++-13 -DCMAKE_INSTALL_EXTERNAL_PREFIX=.bmad_external

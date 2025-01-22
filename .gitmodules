@@ -1,0 +1,3 @@
+[submodule "bmad-external-packages"]
+	path = bmad-external-packages
+	url = git@github.com:bmad-sim/bmad-external-packages.git

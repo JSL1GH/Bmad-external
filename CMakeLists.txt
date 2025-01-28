@@ -172,12 +172,16 @@ set( LIST_OF_PATHS ${CMAKE_PREFIX_PATH})
 # hdf5 is supported by h5cc - and it has its own special path (though maybe not when I place in .bmad_external directory)
 # I also found this CMake check for hdf5 -  https://cmake.org/cmake/help/latest/module/FindHDF5.html
 
-option(BUILD_FGSL "Build FGSL" ON)
-option(BUILD_HDF5 "Build HDF5, if needed" ON)
-option(BUILD_LAPACK "Build LAPACK" ON)
-option(BUILD_LAPACK95 "Build LAPACK95" ON)
-option(BUILD_PLPLOT "Build PLplot" ON)
-option(BUILD_XRAYLIB "Build xraylib" ON)
+option(BUILD_FGSL "Build FGSL" OFF)
+option(BUILD_HDF5 "Build HDF5, if needed" OFF)
+option(BUILD_LAPACK "Build LAPACK" OFF)
+option(BUILD_LAPACK95 "Build LAPACK95" OFF)
+option(BUILD_PLPLOT "Build plplot" OFF)
+option(BUILD_XRAYLIB "Build xraylib" OFF)
+option(BUILD_ALL "Build all" "OFF")
+
+message(STATUS "CMakeLists.txt - status of build_all is ${BUILD_ALL}")
+
 
 #return()
 
@@ -193,7 +197,9 @@ option(BUILD_XRAYLIB "Build xraylib" ON)
 #list(APPEND EXT_LIBS gsl fgsl)
 #list(APPEND EXT_LIBS fgsl)
 
-list(APPEND EXT_LIBS h5cc lapack plplot fgsl lapack95 xraylib)
+#list(APPEND EXT_LIBS h5cc lapack plplot fgsl lapack95 xraylib)
+#list(APPEND EXT_LIBS lapack95)
+
 #list(APPEND EXT_LIBS plplot)
 
 
@@ -210,10 +216,16 @@ list(APPEND EXT_LIBS h5cc lapack plplot fgsl lapack95 xraylib)
 
 #list(APPEND EXT_LIBS hdf5)
 
+list(APPEND EXT_LIBS h5cc lapack plplot fgsl lapack95 xraylib)
+
+#list(APPEND EXT_LIBS lapack)
+
+
 message( STATUS "CMAKE_PROJECT_NAME is ${CMAKE_PROJECT_NAME} - and PROJECT_NAME = ${PROJECT_NAME}" )
 
 set_property(GLOBAL PROPERTY EXTERNALTEST ALL_GOOD)
 set_property(GLOBAL PROPERTY GLOBALTEST TRUE1)
+set_property(GLOBAL PROPERTY BUILD_AT_LEAST_ONE 0)
 
 # this allows us to find packages in paths that we specify - alternate paths from the system!
 set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM BOTH)
@@ -222,9 +234,45 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
 
 	message(STATUS "invoked locally (building external packages - whichever ones are not available)")
 	
+
+	# first go through all of our libraries that we handle and see if any are set
+	# if BUILD_ALL is set, we BUILD_ALL
+	# if none are set, we assume BUILD_ALL
+	# if one are more are set (and BUILD_ALL is not), we do not assume BUILD_ALL, and build only those requested
+	set_property(GLOBAL PROPERTY BUILD_AT_LEAST_ONE 0)
+#	set_property (BUILD_AT_LEAST_ONE 0)
+	message(STATUS "1 Value of BUILD_AT_LEAST_ONE is ${BUILD_AT_LEAST_ONE}")
+	foreach( PACKAGE IN ITEMS ${EXT_LIBS} )
+	   should_build_package(${PACKAGE} retval)
+	   message(STATUS "after_should_build_package ${package} - Value of BUILD_AT_LEAST_ONE is ${BUILD_AT_LEAST_ONE}")
+	endforeach()
+	get_property(MY_LOC_AT_LEAST_1 GLOBAL PROPERTY BUILD_AT_LEAST_ONE)
+
+	message(STATUS "2 Value of BUILD_AT_LEAST_ONE is ${MY_LOC_AT_LEAST_1}")
+	if (${MY_LOC_AT_LEAST_1} EQUAL 0)
+	   message(STATUS "Found no libraries requested to build - user must want to build all of them.")
+#	   message(FATAL_ERROR "Found no libraries requested to build - user must want to build all of them.")
+	   set (BUILD_ALL "ON")	
+	endif()
+
 	foreach( PACKAGE IN ITEMS ${EXT_LIBS} )
 
+	# only build the package if BUILD_ON is true for the package or BUILD_ALL is true)
+	# this doesn't seem to make sense - we only get to this point if the package is
+	# in the EXT_LIBS list
+	# so let's just check if the BUILD_ON is set for the package or BUILD_ALL is set
+	set (retval 0)
+	message (STATUS "1. value of should_build - ${PACKAGE} - in CMakeLists.txt is - ${retval}")
+	should_build_package(${PACKAGE} retval)
+	message (STATUS "2. value of should_build - ${PACKAGE} in CMakeLists.txt is - ${retval}")
+	if (${retval} STREQUAL "NO")
+	   continue() # skip the rest of the foreach loop for this iteration
+	endif()
+
 #	foreach(PACKAGE boost nextboost)
+
+#jsl - add targerts		addtarget_
+#          add_target(${PACKAGE})
 
 		set (VAR1 ${PACKAGE})
 
@@ -311,6 +359,10 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
 			set(NEED_TO_INSTALL_PACKAGE 1)
 
 		endif()
+
+# testing - JSL
+#		set (NEED_TO_INSTALL_PACKAGE 0)
+#		message (STATUS, "For now, not installing anything - just setting need to install to 0")
 
 		if (${NEED_TO_INSTALL_PACKAGE})
 

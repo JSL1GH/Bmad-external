@@ -411,6 +411,7 @@ function(now_really_build_hdf5)
 	  "--disable-tests"
 # THIS IS STILL CONFUSING - WHY IS BUILD_COMMAND OF JUST make - DOING A make install?
 # I THINK I READ SOMEWHERE THAT ExternalProject_Add ALWAYS DOES A make install - DOES THIS MAKE SENSE?
+        BUILD_ALWAYS true
 	BUILD_COMMAND make
 	INSTALL_COMMAND make install
     )
@@ -507,6 +508,7 @@ function(now_really_build_lapack)
 #	"--disable-static"
 #	"--disable-tests"
 
+        BUILD_ALWAYS true
 	BUILD_COMMAND make
 	INSTALL_COMMAND make install
 	)
@@ -701,6 +703,7 @@ function(now_really_build_plplot)
 	  -DENABLE_octave:STRING=OFF
 	  -DBUILD_TEST:STRING=OFF
     
+        BUILD_ALWAYS true
 	BUILD_COMMAND make
 	INSTALL_COMMAND make install
     )
@@ -864,6 +867,7 @@ if (${NEED_TO_BUILD_GSL} EQUAL 1)
 #      "--enable-shared"
 #      "--disable-static"
 
+      BUILD_ALWAYS true
       BUILD_COMMAND make
       INSTALL_COMMAND make install
     )
@@ -1029,6 +1033,7 @@ endif()
 #      -DENABLE_octave:STRING=OFF
 #      -DBUILD_TEST:STRING=OFF
     
+      BUILD_ALWAYS true
       BUILD_COMMAND make -j 1
       INSTALL_COMMAND make install
     )
@@ -1069,9 +1074,9 @@ function(now_really_build_lapack95)
 
 
 #    MESSAGE (STATUS "For LAPACK95 - will place CMakeLists.txt file into ${path}/${dirname}")
-    MESSAGE (STATUS "For LAPACK95 - will place CMakeLists.txt file into ...")
+    MESSAGE (STATUS "For LAPACK95 - will place  ${CMAKE_ROLLOUT_CMAKE_FILES}/LAPACK95_CMakeLists.txt file into ...${GLOBAL1}/lapack95 and then rename it to ${GLOBAL1}/lapack95/CMakeLists.txt")
 
-#			file(COPY ${THE_PARENT_PATH}/external_project/LAPACK95_CMakeLists.txt DESTINATION ${path}/${dirname})
+#	file(COPY ${THE_PARENT_PATH}/external_project/LAPACK95_CMakeLists.txt DESTINATION ${path}/${dirname})
 
 #    file(COPY /Users/jlaster/BmadFiles/LAPACK95_CMakeLists.txt DESTINATION ${path}/${dirname})
     file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/LAPACK95_CMakeLists.txt DESTINATION ${GLOBAL1}/lapack95)
@@ -1189,6 +1194,7 @@ function(now_really_build_lapack95)
 #	  -DCMAKE_Fortran_COMPILER:STRING=gfortran
 #    BUILD_COMMAND make CMAKE_ENV="ACC_CMAKE_VERSION=ENV{ACC_CMAKE_VERSION}")
 
+        BUILD_ALWAYS true
 	BUILD_COMMAND make
 	INSTALL_COMMAND make install
 #	BUILD_COMMAND make
@@ -1300,6 +1306,7 @@ function(now_really_build_xraylib)
 #	  -DCMAKE_CXX_COMPILER:STRING=/opt/homebrew/bin/g++-13
 	  -DCMAKE_CXX_COMPILER:STRING=${CMAKE_CXX_COMPILER}
 
+    BUILD_ALWAYS true
     BUILD_COMMAND make
     INSTALL_COMMAND make install
     )
@@ -1319,4 +1326,64 @@ function(now_really_build_xraylib)
 
     message(STATUS "Finished setting up the build needed for xraylib")
 
+endfunction()
+
+
+function(should_build_package package should_build)
+
+	message(STATUS "Checking build for package ${package}")
+	message(STATUS "status of build_all is ${BUILD_ALL}")
+#	set (fgsl "FGSL")
+	set (package_name_to_use "not set")
+	package_map(${package} package_name_to_use)
+	message(STATUS "3. VALUE OF package_name_to_use after calling package_map is now ${package_name_to_use}")
+	message(STATUS "VALUE OF BUILD_${package} is ${BUILD_${package_name_to_use}}")
+	message(STATUS "VALUE OF BUILD_ALL is ${BUILD_ALL}")
+
+	if (${BUILD_ALL} STREQUAL "ON")
+		message(STATUS "Build all is ON!")
+ 		set(${should_build} "YES" PARENT_SCOPE)
+		
+	else()
+		message(STATUS - "BUILD_ALL IS NOT ON - package value is ${BUILD_${package_name_to_use}}")
+		if (${BUILD_${package_name_to_use}} STREQUAL "ON")
+			message(STATUS "Build for BUILD_${package_name_to_use} is ON!")
+			set(${should_build} "YES" PARENT_SCOPE)
+#			set(${BUILD_AT_LEAST_ONE} 1 PARENT_SCOPE)
+			message(STATUS "Setting value of BUILD_AT_LEAST_ONE to be 1!")
+			set_property(GLOBAL PROPERTY BUILD_AT_LEAST_ONE 1)
+		else()		
+			set(${should_build} "NO" PARENT_SCOPE)
+		endif()
+	endif()
+#	message(STATUS "Value of should_build in GlobalVariables.cmake file should_build function is ${should_build}")
+endfunction()
+
+
+function(package_map package mapped_name)
+
+	message(STATUS "1. (package_map) called with ${package} : ${mapped_name}")
+	message(STATUS "(package_map) Checking build for package ${package}")
+#	message(STATUS "(package_map) status of build_all is ${BUILD_ALL}")
+#	set (fgsl "FGSL")
+#	message(STATUS "(package_map) VALUE OF BUILD_${package} is ${BUILD_${package}}")
+
+	if (${package} STREQUAL "fgsl")
+ 		set(${mapped_name} "FGSL" PARENT_SCOPE)
+	elseif(${package} STREQUAL "h5cc")
+ 		set(${mapped_name} "HDF5" PARENT_SCOPE)
+	elseif(${package} STREQUAL "lapack")
+		message(STATUS "(package_map) FOUND A MATCH for ${package}")
+ 		set(${mapped_name} "LAPACK" PARENT_SCOPE)
+		message(STATUS "2. now mapped_name in this function is ${mapped_name}")
+	elseif(${package} STREQUAL "lapack95")
+ 		set(${mapped_name} "LAPACK95" PARENT_SCOPE)
+	elseif(${package} STREQUAL "plplot")
+ 		set(${mapped_name} "PLPLOT" PARENT_SCOPE)
+	elseif(${package} STREQUAL "xraylib")
+ 		set(${mapped_name} "XRAYLIB" PARENT_SCOPE)
+	else()
+		message(FATAL_ERROR "(package_map) Package name mapping not found - aborting - ${package}")
+	endif()
+	message(STATUS "(package_map) Value of package - mapped name is ${package} - ${mapped_name}")
 endfunction()

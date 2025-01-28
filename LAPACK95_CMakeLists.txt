@@ -47,7 +47,7 @@ file ( GLOB SRCS code/*.f90)
 # Create a library
 #add_library(my_library STATIC my_lib.f90)
 #add_library(lapack95 STATIC lapack95.f90)
-add_library(lapack95 STATIC ${SRCS})
+add_library(lapack95 SHARED ${SRCS})
 
 # Link the library to the executable
 #target_link_libraries(my_program my_library) 
@@ -81,7 +81,6 @@ add_library(lapack95 STATIC ${SRCS})
 
     install(FILES
       ${lapack95_module_dir}/f77_lapack.mod
-
       ${lapack95_module_dir}/f95_lapack.mod
       ${lapack95_module_dir}/la_auxmod.mod
       ${lapack95_module_dir}/la_precision.mod

@@ -1118,7 +1118,9 @@ function(now_really_build_lapack95)
 
   find_package(LAPACK)
   if (NOT LAPACK_FOUND)
-    message(FATAL_ERROR "LAPACK library not found")
+    message(FATAL_ERROR "BUILDING LAPACK95 - LAPACK library not found")
+  else()
+    message(STATUS "BUILDING LAPACK95 - FOUND LAPACK library")
   endif()
 
 #  set(ENV{ACC_CMAKE_VERSION} "3.13.2")

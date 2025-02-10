@@ -1,0 +1,34 @@
+
+
+CMAKE_INSTALL_PREFIX - where the packages should be installed - this is what bmad-ecosystem will be built against 
+                     - if not specified during installation, build is placed in ${HOME}/bmad/external
+
+CMAKE_PREFIX_PATH - where files used for the build can be found - if have previously been built in a non-standard location
+CMAKE_MODULE_PATH - where the 'find' modules for packages can be found to prevent rebuilding
+CMAKE_PRINT_DEBUG - print out diagnostic information
+CMAKE_DCUSER_FORCE - for protection, previous builds will not be written over unless user instructs to force rebuild
+BUILD_FGSL - indicates specific package to be built - one or more may be specified
+BUILD_HDF5
+BUILD_LAPACK
+BUILD_LAPACK95
+BUILD_PLPLOT
+BUILD_XRAYLIB
+BUILD_ALL - supersedes any individual builds - will build all packages
+
+
+Example runs:
+
+cmake
+cmake -DCMAKE_PRINT_DEBUG=True
+
+.
+.
+.
+
+.
+
+#only build plplot
+cmake .. -DCMAKE_INSTALL_PREFIX=/home/cfsd/laster/my_bmad_dir/rollout -DCMAKE_PREFIX_PATH=/home/cfsd/laster/my_bmad_dir/Bmad-external/bmad-external-packages -DCMAKE_MODULE_PATH=/home/cfsd/laster/my_bmad_dir/Bmad-external/bmad-external-packages -DCMAKE_PRINT_DEBUG=True -DCUSER_FORCE=true -DBUILD_PLPLOT=ON
+
+#build everything
+cmake .. -DCMAKE_INSTALL_PREFIX=/home/cfsd/laster/my_bmad_dir/rollout -DCMAKE_PREFIX_PATH=/home/cfsd/laster/my_bmad_dir/Bmad-external/bmad-external-packages -DCMAKE_MODULE_PATH=/home/cfsd/laster/my_bmad_dir/Bmad-external/bmad-external-packages -DCMAKE_PRINT_DEBUG=True -DCUSER_FORCE=true

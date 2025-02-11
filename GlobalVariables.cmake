@@ -673,7 +673,8 @@ function(now_really_build_plplot)
 	  -DBUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
 	  -DDEFAULT_NO_DEVICES=ON
 	  -DDEFAULT_NO_QT_DEVICES=ON
-	  -DDEFAULT_NO_BINDINGS=ON
+# This caused the plplot.mod file to not be built!
+#	  -DDEFAULT_NO_BINDINGS=ON
 
     	CMAKE_CACHE_ARGS
 #	  -DCMAKE_C_COMPILER:STRING=/opt/homebrew/bin/gcc-13

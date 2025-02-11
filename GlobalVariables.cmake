@@ -674,7 +674,10 @@ function(now_really_build_plplot)
 	  -DDEFAULT_NO_DEVICES=ON
 	  -DDEFAULT_NO_QT_DEVICES=ON
 # This caused the plplot.mod file to not be built!
-#	  -DDEFAULT_NO_BINDINGS=ON
+	  -DDEFAULT_NO_BINDINGS=ON
+          -DENABLE_fortran:BOOL=ON
+
+
 
     	CMAKE_CACHE_ARGS
 #	  -DCMAKE_C_COMPILER:STRING=/opt/homebrew/bin/gcc-13

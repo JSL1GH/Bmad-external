@@ -71,9 +71,13 @@ add_library(lapack95 SHARED ${SRCS})
 
     set_target_properties(lapack95 PROPERTIES LINKER_LANGUAGE Fortran)
 
-    target_link_libraries(lapack95 ${LAPACK_LIBRARIES})
+#    target_link_libraries(lapack95 ${LAPACK_LIBRARIES})
+    target_link_libraries(lapack95 lapack blas)
 
     target_link_options(lapack95 PRIVATE ${LAPACK_LINKER_FLAGS})
+
+#    target_link_directories(lapack95 PUBLIC lib/fortran/modules/lapack)
+    target_link_directories(lapack95 PUBLIC ${CMAKE_INSTALL_PREFIX}/lib)
 
     install(TARGETS lapack95)
 

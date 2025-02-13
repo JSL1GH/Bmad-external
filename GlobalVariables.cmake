@@ -346,7 +346,7 @@ function(now_really_build_hdf5)
 
 
     if(DEFINED CACHE{CMAKE_PRINT_DEBUG})
-        message(STATUS "Getting ready to set hdf5_DESTDIR to ${hdf5_DESTDIR")
+        message(STATUS "Getting ready to set hdf5_DESTDIR to ${hdf5_DESTDIR}")
     endif()
 
 #    set(hdf5_DESTDIR ${CMAKE_INSTALL_PREFIX}/hdf5)

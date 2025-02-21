@@ -887,9 +887,14 @@ if (${NEED_TO_BUILD_GSL} EQUAL 1)
     	DESTINATION "${gsl_DESTDIR}"
     	USE_SOURCE_PERMISSIONS
     )
-
-    message(STATUS "Finished setting up the build needed for gsl")
+    message(STATUS "Finished the NEED TO BUILD section for gsl")
+else()
+    add_custom_target(gsl "true")
+    message(STATUS "No reason to build gsl")
 endif()
+
+message(STATUS "Finished setting up the build needed for gsl")
+
 
     if(EXISTS ENV{PKG_CONFIG_PATH})
       message ("pkg_config_path does exist")

@@ -189,6 +189,10 @@ function(build_package path dirname)
 			build_lapack()
 		elseif ("${dirname}" STREQUAL "plplot")			
 			build_plplot()
+		elseif ("${dirname}" STREQUAL "fftw")			
+			build_fftw()
+		elseif ("${dirname}" STREQUAL "openmpi")			
+			build_openmpi()
 #		elseif ("${dirname}" STREQUAL "gsl")			
 #			build_gsl()
 		elseif ("${dirname}" STREQUAL "fgsl")
@@ -484,7 +488,8 @@ function(now_really_build_lapack)
 	CMAKE_ARGS
 	  -DCMAKE_INSTALL_PREFIX:PATH=${lapack_DESTDIR}
 	  -DBUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
-
+	  # need this otherwise end up with lapack and blas in /lib64!
+          -DBUILD_INDEX64_EXT_API:STRING=OFF
 #	CMAKE_INSTALL_PREFIX:PATH=/Users/jlaster/bmad_external
 # 		CONFIGURE_COMMAND "${GLOBAL1}/hdf5/hdf5/configure"
 
@@ -733,6 +738,225 @@ function(now_really_build_plplot)
     message(STATUS "Finished setting up the build needed for plplot")
 
 endfunction()
+
+function(build_fftw)
+	message(STATUS "Now really building fftw")
+	now_really_build_fftw()
+endfunction()
+
+function(now_really_build_fftw)
+
+    message(STATUS "Have reached here - fftw")
+
+    get_property(GLOBAL2 GLOBAL PROPERTY EXTERNAL_BMAD_SOURCE_DIRECTORY)
+    get_property(GLOBAL1 GLOBAL PROPERTY BMAD_EXTERNAL_PACKAGES)
+
+    message(STATUS "Values - global1 ${GLOBAL1} global2 ${GLOBAL2} fftw_destdir ${fftw_DESTDIR}")
+
+    # set fftw_DESTDIR to have install directory by default
+    set(fftw_DESTDIR ${CMAKE_INSTALL_PREFIX})
+
+    if(${INSTALL_IN_SEPARATE_DIRS} EQUAL 1)
+	set (fftw_DESTDIR ${CMAKE_INSTALL_PREFIX}/fftw)
+    endif()
+
+
+#    set(fftw_DESTDIR ${CMAKE_INSTALL_PREFIX}/fftw)
+
+    if(DEFINED CACHE{CMAKE_PRINT_DEBUG})
+        message ("Set fftw_DESTDIR - value has been set to - ${fftw_DESTDIR}")
+    endif()
+
+
+#    set(fftw_version "5.15.0")
+    ExternalProject_Add(fftw
+
+#    SOURCE_DIR "${GLOBAL1}/fftw/fftw"
+     #SOURCE_DIR "${GLOBAL1}/fftw"
+
+     SOURCE_DIR "${GLOBAL1}/fftw"
+     CONFIGURE_COMMAND
+#    "${xraylib_srcdir}/configure"
+         "${GLOBAL1}/fftw/configure"
+         "--prefix=${fftw_DESTDIR}"
+	  # need this otherwise end up with lapack and blas fftw3 in /lib64 and not a shared object!!
+	 "--enable-shared"
+
+	CMAKE_ARGS
+	  -DCMAKE_INSTALL_PREFIX:PATH=${fftw_DESTDIR}
+	  -DBUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
+#	  -DDEFAULT_NO_DEVICES=ON
+#	  -DDEFAULT_NO_QT_DEVICES=ON
+# This caused the fftw.mod file to not be built!
+#	  -DDEFAULT_NO_BINDINGS=ON
+          -DENABLE_fortran:BOOL=ON
+
+
+
+    	CMAKE_CACHE_ARGS
+#	  -DCMAKE_C_COMPILER:STRING=/opt/homebrew/bin/gcc-13
+	  -DCMAKE_C_COMPILER:STRING=${CMAKE_C_COMPILER}
+#	  -DCMAKE_CXX_COMPILER:STRING=/opt/homebrew/bin/g++-13
+	  -DCMAKE_CXX_COMPILER:STRING=${CMAKE_CXX_COMPILER}
+#	  -DCMAKE_INSTALL_PREFIX:PATH=${GLOBAL1} 
+#	  -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_INSTALL_PREFIX} 
+
+	CMAKE_ARGS
+#	  -DDEFAULT_NO_DEVICES=ON
+#	  -DPLD_pdfcairo=ON
+#	  -DPLD_pscairo=ON
+#	  -DPLD_pngcairo=ON
+#	  -DPLD_svgcairo=ON
+#	  -DPLD_xwin=ON
+#	  -DHAVE_SHAPELIB=OFF
+	  -DCMAKE_VERBOSE_MAKEFILE=true
+#      -DBUILD_SHARED_LIBS=ON
+#	  -DUSE_RPATH=ON
+#	  -DPLD_psc=OFF
+#	  -DPL_HAVE_QHULL=OFF
+#	  -DENABLE_tk=OFF
+#	  -DENABLE_tcl=OFF
+#	  -DENABLE_java=OFF
+#	  -DENABLE_python=OFF
+#	  -DENABLE_ada=OFF
+#	  -DENABLE_wxwidgets=OFF
+#	  -DENABLE_cxx=OFF
+#	  -DENABLE_octave=OFF
+#	  -DBUILD_TEST=OFF
+    
+        BUILD_ALWAYS true
+	BUILD_COMMAND make
+	INSTALL_COMMAND make install
+    )
+
+    message ("Set fftw_DESTDIR - value After ExternalProject_Add is now - ${fftw_DESTDIR}")
+
+#    file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/fftwConfig.cmake DESTINATION ${fftw_DESTDIR})
+#    file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/fftwConfig.cmake DESTINATION ${GLOBAL1})
+
+    install(
+        DIRECTORY
+        COMPONENT fftw
+    	DESTINATION "${fftw_DESTDIR}"
+    	USE_SOURCE_PERMISSIONS
+    )
+
+    file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/Findfftwlib.cmake DESTINATION ${GLOBAL1}/fftwlib)
+
+
+    message(STATUS "Finished setting up the build needed for fftw
+")
+
+endfunction()
+
+function(build_openmpi)
+	message(STATUS "Now really building openmpi")
+	now_really_build_openmpi()
+endfunction()
+
+function(now_really_build_openmpi)
+
+    message(STATUS "Have reached here - openmpi")
+
+    get_property(GLOBAL2 GLOBAL PROPERTY EXTERNAL_BMAD_SOURCE_DIRECTORY)
+    get_property(GLOBAL1 GLOBAL PROPERTY BMAD_EXTERNAL_PACKAGES)
+
+    message(STATUS "Values - global1 ${GLOBAL1} global2 ${GLOBAL2} openmpi_destdir ${openmpi_DESTDIR}")
+
+    # set openmpi_DESTDIR to have install directory by default
+    set(openmpi_DESTDIR ${CMAKE_INSTALL_PREFIX})
+
+    if(${INSTALL_IN_SEPARATE_DIRS} EQUAL 1)
+	set (openmpi_DESTDIR ${CMAKE_INSTALL_PREFIX}/openmpi)
+    endif()
+
+
+#    set(openmpi_DESTDIR ${CMAKE_INSTALL_PREFIX}/openmpi)
+
+    if(DEFINED CACHE{CMAKE_PRINT_DEBUG})
+        message ("Set openmpi_DESTDIR - value has been set to - ${openmpi_DESTDIR}")
+    endif()
+
+
+#    set(openmpi_version "5.15.0")
+    ExternalProject_Add(openmpi
+
+#    SOURCE_DIR "${GLOBAL1}/openmpi/openmpi"
+     #SOURCE_DIR "${GLOBAL1}/openmpi"
+
+     SOURCE_DIR "${GLOBAL1}/openmpi"
+     CONFIGURE_COMMAND
+         "${GLOBAL1}/openmpi/configure"
+         "--prefix=${openmpi_DESTDIR}"
+	 "--enable-shared=${BUILD_SHARED_LIBS}"
+
+	CMAKE_ARGS
+	  -DCMAKE_INSTALL_PREFIX:PATH=${openmpi_DESTDIR}
+	  -DBUILD_SHARED_LIBS=${BUILD_SHARED_LIBS
+#	  -DDEFAULT_NO_DEVICES=ON
+#	  -DDEFAULT_NO_QT_DEVICES=ON
+# This caused the openmpi.mod file to not be built!
+#	  -DDEFAULT_NO_BINDINGS=ON
+          -DENABLE_fortran:BOOL=ON
+
+
+
+    	CMAKE_CACHE_ARGS
+#	  -DCMAKE_C_COMPILER:STRING=/opt/homebrew/bin/gcc-13
+	  -DCMAKE_C_COMPILER:STRING=${CMAKE_C_COMPILER}
+#	  -DCMAKE_CXX_COMPILER:STRING=/opt/homebrew/bin/g++-13
+	  -DCMAKE_CXX_COMPILER:STRING=${CMAKE_CXX_COMPILER}
+#	  -DCMAKE_INSTALL_PREFIX:PATH=${GLOBAL1} 
+#	  -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_INSTALL_PREFIX} 
+
+	CMAKE_ARGS
+#	  -DDEFAULT_NO_DEVICES=ON
+#	  -DPLD_pdfcairo=ON
+#	  -DPLD_pscairo=ON
+#	  -DPLD_pngcairo=ON
+#	  -DPLD_svgcairo=ON
+#	  -DPLD_xwin=ON
+#	  -DHAVE_SHAPELIB=OFF
+	  -DCMAKE_VERBOSE_MAKEFILE=true
+#      -DBUILD_SHARED_LIBS=ON
+#	  -DUSE_RPATH=ON
+#	  -DPLD_psc=OFF
+#	  -DPL_HAVE_QHULL=OFF
+#	  -DENABLE_tk=OFF
+#	  -DENABLE_tcl=OFF
+#	  -DENABLE_java=OFF
+#	  -DENABLE_python=OFF
+#	  -DENABLE_ada=OFF
+#	  -DENABLE_wxwidgets=OFF
+#	  -DENABLE_cxx=OFF
+#	  -DENABLE_octave=OFF
+#	  -DBUILD_TEST=OFF
+    
+        BUILD_ALWAYS true
+	BUILD_COMMAND make
+	INSTALL_COMMAND make install
+    )
+
+    message ("Set openmpi_DESTDIR - value After ExternalProject_Add is now - ${openmpi_DESTDIR}")
+
+#    file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/openmpiConfig.cmake DESTINATION ${openmpi_DESTDIR})
+#    file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/openmpiConfig.cmake DESTINATION ${GLOBAL1})
+
+    install(
+        DIRECTORY
+        COMPONENT openmpi
+    	DESTINATION "${openmpi_DESTDIR}"
+    	USE_SOURCE_PERMISSIONS
+    )
+
+    file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/Findopenmpilib.cmake DESTINATION ${GLOBAL1}/openmpilib)
+
+
+    message(STATUS "Finished setting up the build needed for openmpi
+")
+
+endfunction()
+  
 
 function(build_fgsl)
 	message(STATUS "Now really building fgsl")
@@ -1394,6 +1618,10 @@ function(package_map package mapped_name)
  		set(${mapped_name} "LAPACK95" PARENT_SCOPE)
 	elseif(${package} STREQUAL "plplot")
  		set(${mapped_name} "PLPLOT" PARENT_SCOPE)
+	elseif(${package} STREQUAL "fftw")
+ 	         set(${mapped_name} "FFTW" PARENT_SCOPE)
+	elseif(${package} STREQUAL "openmpi")
+ 		set(${mapped_name} "OPENMPI" PARENT_SCOPE)
 	elseif(${package} STREQUAL "xraylib")
  		set(${mapped_name} "XRAYLIB" PARENT_SCOPE)
 	else()

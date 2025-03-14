@@ -178,6 +178,8 @@ option(BUILD_LAPACK "Build LAPACK" OFF)
 option(BUILD_LAPACK95 "Build LAPACK95" OFF)
 option(BUILD_PLPLOT "Build plplot" OFF)
 option(BUILD_XRAYLIB "Build xraylib" OFF)
+option(BUILD_FFTW "Build fftw" OFF)
+option(BUILD_OPENMPI "Build openmpi" OFF)
 option(BUILD_ALL "Build all" "OFF")
 
 message(STATUS "CMakeLists.txt - status of build_all is ${BUILD_ALL}")
@@ -216,7 +218,9 @@ message(STATUS "CMakeLists.txt - status of build_all is ${BUILD_ALL}")
 
 #list(APPEND EXT_LIBS hdf5)
 
-list(APPEND EXT_LIBS h5cc lapack plplot fgsl lapack95 xraylib)
+#list(APPEND EXT_LIBS h5cc lapack plplot fgsl lapack95 xraylib)
+#list(APPEND EXT_LIBS h5cc lapack plplot fftw openmpi fgsl lapack95 xraylib)
+list(APPEND EXT_LIBS h5cc lapack plplot fftw fgsl lapack95 xraylib)
 
 #list(APPEND EXT_LIBS lapack)
 

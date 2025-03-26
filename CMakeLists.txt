@@ -19,6 +19,9 @@ cmake_minimum_required(VERSION 3.1...3.20)
 #  message(STATUS "CMAKE IS DEFINED")
 
 
+
+#-DBUILD_FGSL=ON -DBUILD_HDF5=ON -DBUILD_LAPACK=ON -DBUILD_LAPACK95=ON -DBUILD_PLPLOT=ON -DBUILD_XRAYLIB=ON -DBUILD_FFTW=ON -DBUILD_OPENMPI=ON -DBUILD_ANYWAY=ON
+
 #endif()
 
 
@@ -55,6 +58,12 @@ if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 #  SET(CMAKE_INSTALL_PREFIX "/path/to/subdir" CACHE PATH "install prefix" FORCE)
 endif(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 message("After set it")
+
+if(NOT CMAKE_BUILD_TYPE)
+    message(STATUS "value of build type is ${CMAKE_BUILD_TYPE}")
+    message(STATUS "Did not find a definition for cmake_build_type, setting it to Release")
+    set(CMAKE_BUILD_TYPE Release)
+endif()
 
 #https://bb.cgd.ucar.edu/cesm/threads/porting-test-build-failed-when-im-trying-to-port-cesm1_2_2.2864/
 #ENABLE_LANGUAGE(Fortran)
@@ -109,6 +118,12 @@ endif()
 
 #set(CMAKE_INSTALL_PREFIX ${CMAKE_INSTALL_EXTERNAL_PREFIX})
 
+#set(CMAKE_BUILD_TYPE Release)
+#if(DEFINED CMAKE_BUILD_TYPE)
+#    message (STATUS "User has decided to set '${CMAKE_INSTALL_PREFIX}' as the installation area")
+#    set (CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE})
+#endif()
+
 # create the name of the global include file - with all the definitions!
 #set(GLOBAL_VARIABLE_FILE ${THE_PARENT_PATH}/global/GlobalVariables.cmake)
 #set(GLOBAL_VARIABLE_FILE ${BUILD_DIR}/GlobalVariables.cmake)
@@ -158,6 +173,10 @@ endif()
 
 include (${GLOBAL_VARIABLE_FILE})
 
+message(STATUS "Building the project with a build type of ${CMAKE_BUILD_TYPE}")
+
+#return()
+
 get_property(GLOBAL1 GLOBAL PROPERTY EXTERNAL_BMAD_DIRECTORY)
 message (STATUS "In external-project/Value of global variable (EXTERNAL_BMAD_DIRECTORY) is '${GLOBAL1}'")
 
@@ -182,8 +201,14 @@ option(BUILD_FFTW "Build fftw" OFF)
 option(BUILD_OPENMPI "Build openmpi" OFF)
 option(BUILD_ALL "Build all" "OFF")
 
-message(STATUS "CMakeLists.txt - status of build_all is ${BUILD_ALL}")
+option(BUILD_ANYWAY "Build all packages - or the specified ones - even if they are available on the system!" "OFF")
 
+set(CMAKE_INSTALL_ANYWAY ${BUILD_ANYWAY})
+
+#message(STATUS "VALUE OF BUILD_ANYWAY IS ${CMAKE_INSTALL_ANYWAY}")
+#return()
+
+message(STATUS "CMakeLists.txt - status of build_all is ${BUILD_ALL}")
 
 #return()
 
@@ -220,7 +245,7 @@ message(STATUS "CMakeLists.txt - status of build_all is ${BUILD_ALL}")
 
 #list(APPEND EXT_LIBS h5cc lapack plplot fgsl lapack95 xraylib)
 #list(APPEND EXT_LIBS h5cc lapack plplot fftw openmpi fgsl lapack95 xraylib)
-list(APPEND EXT_LIBS h5cc lapack plplot fftw fgsl lapack95 xraylib)
+list(APPEND EXT_LIBS h5cc lapack plplot fftw openmpi fgsl lapack95 xraylib)
 
 #list(APPEND EXT_LIBS lapack)
 
@@ -335,7 +360,7 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
 #			else()
 #			   message(STATUS "Did not find xrl - looking for xraylib")
 #			   find_package(xraylib PATHS ${LIST_OF_PATHS} CONFIG)
-			   find_package(xraylib MODULE)
+#			   find_package(xraylib MODULE)
 #			endif()
 		elseif (${VAR1} STREQUAL "plplot")
 			#special test for hdf5

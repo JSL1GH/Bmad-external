@@ -1152,7 +1152,7 @@ endfunction()
 
 function(now_really_build_lapack95)
 
-  set(func_name "${func_name}")
+  set(func_name "lapack95")
 
   message(STATUS "Now really building ${func_name}")
 
@@ -1161,8 +1161,8 @@ function(now_really_build_lapack95)
 
   MESSAGE (STATUS "For ${FUNC_NAME} - will place  ${CMAKE_ROLLOUT_CMAKE_FILES}/${FUNC_NAME}_CMakeLists.txt file into ...${GLOBAL1}/${func_name} and then rename it to ${GLOBAL1}/${func_name}/CMakeLists.txt")
 
-  file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/${FUNC_NAME}_CMakeLists.txt DESTINATION ${GLOBAL1}/${func_name})
-  file(RENAME ${GLOBAL1}/${func_name}/${FUNC_NAME}_CMakeLists.txt ${GLOBAL1}/${func_name}/CMakeLists.txt)
+  file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/LAPACK95_CMakeLists.txt DESTINATION ${GLOBAL1}/${func_name})
+  file(RENAME ${GLOBAL1}/${func_name}/LAPACK95_CMakeLists.txt ${GLOBAL1}/${func_name}/CMakeLists.txt)
 
   find_package(LAPACK)
   if (NOT LAPACK_FOUND)

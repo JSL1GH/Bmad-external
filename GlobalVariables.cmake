@@ -960,8 +960,8 @@ function(now_really_build_fgsl)
     set(gsl_build_type "")
 
     if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
-#      set(gsl_build_type "--debug")
-      set(gsl_build_type "-d")
+      set(gsl_build_type "CFLAGS=-g -O0")
+#      set(gsl_build_type "-d")
     endif()
 
     ExternalProject_Add(gsl
@@ -1068,7 +1068,8 @@ function(now_really_build_fgsl)
   set(fgsl_build_type "")
 
   if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
-    set(fgsl_build_type "--debug")
+      set(fgsl_build_type "CFLAGS=-g -O0")
+#    set(fgsl_build_type "--debug")
   endif()
 
   ExternalProject_Add(fgsl

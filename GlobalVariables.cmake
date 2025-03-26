@@ -246,7 +246,7 @@ function(build_hdf5)
 
   include(ExternalProject)
 
-  if(BUILD_HDF5)
+  if(BUILD_HDF5 OR BUILD_ALL)
 
     message(STATUS "User wants to build HDF5")
 
@@ -402,7 +402,7 @@ function(build_lapack)
 
   include(ExternalProject)
 
-  if(BUILD_LAPACK)
+  if(BUILD_LAPACK OR BUILD_ALL)
 
     message(STATUS "User wants to build LAPACK")
 
@@ -494,7 +494,7 @@ function(build_plplot)
 
   include(ExternalProject)
 
-  if(BUILD_PLPLOT)
+  if(BUILD_PLPLOT OR BUILD_ALL)
 
     message(STATUS "User wants to build PLPLOT")
 
@@ -610,7 +610,7 @@ function(build_fftw)
 
   include(ExternalProject)
 
-  if(BUILD_FFTW)
+  if(BUILD_FFTW OR BUILD_ALL)
 
     message(STATUS "User wants to build FFTW")
 
@@ -718,7 +718,7 @@ function(build_openmpi)
 
   include(ExternalProject)
 
-  if(BUILD_OPENMPI)
+  if(BUILD_OPENMPI OR BUILD_ALL)
 
     message(STATUS "User wants to build OPENMPI")
 
@@ -863,7 +863,7 @@ function(build_fgsl)
 
   include(ExternalProject)
 
-  if(BUILD_FGSL)
+  if(BUILD_FGSL OR BUILD_ALL)
 
     message(STATUS "User wants to build FGSL")
 
@@ -960,7 +960,8 @@ function(now_really_build_fgsl)
     set(gsl_build_type "")
 
     if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
-      set(gsl_build_type "--debug")
+#      set(gsl_build_type "--debug")
+      set(gsl_build_type "-d")
     endif()
 
     ExternalProject_Add(gsl
@@ -1119,7 +1120,7 @@ function(build_lapack95)
 
   include(ExternalProject)
 
-  if(BUILD_LAPACK95)
+  if(BUILD_LAPACK95 OR BUILD_ALL)
 
     message(STATUS "User wants to build LAPACK95")
 
@@ -1217,7 +1218,7 @@ function(build_xraylib)
 
   include(ExternalProject)
 
-  if(BUILD_XRAYLIB)
+  if(BUILD_XRAYLIB OR BUILD_ALL)
 
     message(STATUS "User wants to build XRAYLIB")
 

@@ -245,7 +245,7 @@ message(STATUS "CMakeLists.txt - status of build_all is ${BUILD_ALL}")
 
 #list(APPEND EXT_LIBS h5cc lapack plplot fgsl lapack95 xraylib)
 #list(APPEND EXT_LIBS h5cc lapack plplot fftw openmpi fgsl lapack95 xraylib)
-list(APPEND EXT_LIBS h5cc lapack plplot fftw openmpi fgsl lapack95 xraylib)
+list(APPEND EXT_LIBS h5cc lapack plplot fftw fgsl lapack95 xraylib)
 
 #list(APPEND EXT_LIBS lapack)
 

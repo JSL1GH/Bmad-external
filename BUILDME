@@ -1,0 +1,72 @@
+
+
+/bin/bash
+INSTALL_DIR="bmad.UNIQUE_STRING"
+mkdir /home/cfsd/laster/${INSTALL_DIR}
+cd /home/cfsd/laster/${INSTALL_DIR}
+git clone git@github.com:JSL1GH/Bmad-external.git --recurse-submodules
+cd Bmad-external
+mkdir buildhere
+cd buildhere
+cmake .. -DCMAKE_PRINT_DEBUG=True
+make
+
+
+-DCMAKE_BUILD_TYPE=Release [Release|Debug|RelWithDebInfo|MinSizeRel]
+
+
+For temporary testing right now, until I push up the modification
+1 - Download the files to DOWNLOAD
+
+
+
+/bin/bash
+# UNIQUE_STRING CAN BE ANYTHING - TO SEPARATE OUT THE BUILDS
+#DATE_THIS_MONTH=`date +'%m.%d.%Y'` 
+#UNIQUE_STRING=${DATE_THIS_MONTH}
+UNIQUE_STRING="myTest.1"
+INSTALL_DIR="bmad.${UNIQUE_STRING}"
+WORK_DIR=`pwd`
+mkdir ${WORK_DIR}/${INSTALL_DIR}
+cd ${WORK_DIR}/${INSTALL_DIR}
+git clone git@github.com:JSL1GH/Bmad-external.git --recurse-submodules
+cd Bmad-external
+mkdir buildhere
+cd buildhere
+cmake .. -DCMAKE_PRINT_DEBUG=True -DCUSER_FORCE=True
+make
+
+
+  602  cmake .. -DCMAKE_PRINT_DEBUG=True -DCUSER_FORCE=True -DCMAKE_BUILD_TYPE=Debug -DBUILD_LAPACK=ON -DBUILD_PLPLOT=ON -DBUILD_ANYWAY=ON
+  603  make
+  604  cmake .. -DCMAKE_PRINT_DEBUG=True -DCUSER_FORCE=True -DCMAKE_BUILD_TYPE=Debug -DBUILD_LAPACK=ON -DBUILD_PLPLOT=ON -DBUILD_ANYWAY=ON
+  605  cmake .. -DCMAKE_PRINT_DEBUG=True -DCUSER_FORCE=True -DCMAKE_BUILD_TYPE=Debug
+  606  cmake .. -DCMAKE_PRINT_DEBUG=True -DCUSER_FORCE=True -DCMAKE_BUILD_TYPE=Debug -DBUILD_ANYWAY=ON
+  607  cmake .. -DCMAKE_PRINT_DEBUG=True -DCUSER_FORCE=True -DCMAKE_BUILD_TYPE=Debug -DBUILD_ANYWAY=ON
+
+
+  619  rm CMakeCache.txt 
+  620  cmake .. -DCMAKE_PRINT_DEBUG=True -DCUSER_FORCE=True -DCMAKE_BUILD_TYPE=Debug
+
+
+option(BUILD_FGSL "Build FGSL" OFF)
+option(BUILD_HDF5 "Build HDF5, if needed" OFF)
+option(BUILD_LAPACK "Build LAPACK" OFF)
+option(BUILD_LAPACK95 "Build LAPACK95" OFF)
+option(BUILD_PLPLOT "Build plplot" OFF)
+option(BUILD_XRAYLIB "Build xraylib" OFF)
+option(BUILD_FFTW "Build fftw" OFF)
+option(BUILD_OPENMPI "Build openmpi" OFF)
+option(BUILD_ALL "Build all" "OFF")
+
+option(BUILD_ANYWAY "Build all packages - or the specified ones - even if they are available on the system!" "OFF")
+
+cmake .. -DCMAKE_PRINT_DEBUG=True -DCUSER_FORCE=True -DCMAKE_BUILD_TYPE=Debug -DBUILD_OPENMPI=ON
+cmake .. -DCMAKE_PRINT_DEBUG=True -DCUSER_FORCE=True -DCMAKE_BUILD_TYPE=Debug -DBUILD_OPENMPI=ON -DBUILD_ANYWAY=ON
+
+
+
+
+CMAKE_PREFIX_PATH - user can use this variable to specify alternate build location for finding the libraries during a build
+in the case the user built to a non-standard area.
+

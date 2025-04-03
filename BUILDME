@@ -1,3 +1,68 @@
+INSTALLATION
+
+/bin/bash
+MY_INSTALL_DIR="bmad.UNIQUE_STRING"
+BASE_PATH="${HOME}/FAVORITE_BMAD_PATH"
+BASE_PATH_AND_INSTALL_DIR="${BASE_PATH}/${MY_INSTALL_DIR}"
+mkdir ${BASE_PATH_AND_INSTALL_DIR}
+cd ${BASE_PATH_AND_INSTALL_DIR}
+git clone git@github.com:JSL1GH/Bmad-external.git --recurse-submodules
+cd Bmad-external
+mkdir buildhere
+cd buildhere
+cmake ..
+make
+
+
+OPTIONS
+There are many options that may be used with the cmake command.  The option should be given with the format, '-D' followed by the option, followed by an '=', followed by a value.
+
+BUILD_FFTW=[ON|OFF]       Value is 'OFF' by default - set to 'ON' if would like to build specific library
+BUILD_FGSL=[ON|OFF]
+BUILD_HDF5=[ON|OFF]
+BUILD_LAPACK=[ON|OFF]
+BUILD_LAPACK95=[ON|OFF]
+BUILD_PLPLOT=[ON|OFF]
+BUILD_XRAYLIB=[ON|OFF]
+BUILD_ALL=[ON|OFF]
+
+The default value is BUILD_ALL.  Once a user supplies a specific library, or libraries, BUILD_ALL is set to OFF
+
+For example, to indicate that the user would like to build the FGSL library:
+	cmake -DBUILD_FGSL=ON
+
+CMAKE_INSTALL_PREFIX=${HOME}/bmad/external - by default, built to a path in the user's home area called bmad/external
+  A user can specify an alternate place to which the libraries should be built by supplying their own value for CMAKE_INSTALL_PREFIX
+
+CUSER_FORCE [True|False]
+ON 2nd build or more, must be True for now - I have to figure out the best way to implement this!
+
+The default install of the build is to the user's $HOME/bmad/external directory.  A user may supply a different directory path by providing a value for CMAKE_INSTALL_PREFIX.
+Before writing to an area, the cmake process checks for its existence.  If it exists, the build terminates, so as not to overwrite a prior build  If a user would like to override
+the build, setting a value of CUSER_FORCE=True will allow the build to continue.
+
+CMAKE_MODULE_PATH - defaults to the path of CMAKE_INSTALL_PREFIX.  This allows a user to specify where prior builds may have been placed on disk, allowing a user to write to multiple
+directories for quick testing of various build scenarios
+
+CMAKE_PRINT_DEBUG [ON|OFF] - a user can specify if additional debug information should be output during the cmake setup process.
+Note that, at this time, there is a lot of 'debug' text printed even if PRINT_DEBUG is off.  This will be 'corrected' once a good build is at hand.
+
+BUILD_ANYWAY [ON|OFF] - default is OFF.  Allows a user to indicate that the build of a library should be done, even if it already exists and can be found.
+
+CMAKE_BUILD_TYPE=Release [Release|Debug] - allows a user to specify if the build is a production build or a debug build.  A debug build will include information for debugging code.
+
+Note:
+
+For repeated builds, be sure to clear the 'cmake cache' by removing the Bmad-external/buildhere/CMakeCache.txt file (of course, buildhere is the directory I used in my example install above - please change accordingly)
+If the cache is not cleared, cmake will use any new options, along with any options (unless overridden with the new cmake) that existed from the last cmake build.
+
+
+
+
+
+
+__________________________________________________
+IGNORE BELOW THIS LINE - FOR NOW
 
 
 /bin/bash
@@ -67,6 +132,4 @@ cmake .. -DCMAKE_PRINT_DEBUG=True -DCUSER_FORCE=True -DCMAKE_BUILD_TYPE=Debug -D
 
 
 
-CMAKE_PREFIX_PATH - user can use this variable to specify alternate build location for finding the libraries during a build
-in the case the user built to a non-standard area.
 

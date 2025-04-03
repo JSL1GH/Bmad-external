@@ -254,7 +254,7 @@ endif()
 	endif()
       elseif (${VAR1} STREQUAL "xraylib")
       	#special test for hdf5
-	message (STATUS "Looking for package 'xraylib' using find_package in paths ${LIST_OF_PATHS}")
+#JSL	message (STATUS "Looking for package 'xraylib' using find_package in paths ${LIST_OF_PATHS}")
 #			find_package(xrl PATHS ${LIST_OF_PATHS} CONFIG)
 #  FIND_PACKAGE(LIBXRL REQUIRED)
 #  INCLUDE_DIRECTORIES(${LIBXRL_INCLUDE_DIR})
@@ -275,21 +275,28 @@ endif()
 
 		elseif (${VAR1} STREQUAL "plplot")
 			#special test for hdf5
-			message (STATUS "Looking for package 'plplot' using find_package in paths ${LIST_OF_PATHS}")
+#JSL			message (STATUS "Looking for package 'plplot' using find_package in paths ${LIST_OF_PATHS}")
 #			find_package(plplot MODULE)
 
 		else()
 #			find_package(${VAR1} PATHS /Users/jlaster/bmad/bmad-ecosystem/production /Users/jlaster/bmad/bmad-ecosystem/hdf5/production /Users/jlaster/.bmad_external /Users/jlaster/.bmad_external/lib /Users/jlaster/.bmad_external/bin /Users/jlaster/.bmad_external/hdf5 /Users/jlaster/.bmad_external/hdf5/hdf5 /Users/jlaster/.bmad_external/bin/config CONFIG)
-			message (STATUS "Looking for package '${VAR1}' using find_package in paths ${LIST_OF_PATHS}")
+#			message (STATUS "Looking for package '${VAR1}' using find_package in paths ${LIST_OF_PATHS}")
 #			find_package(${VAR1} PATHS ${LIST_OF_PATHS} CONFIG)
 #			find_package(${VAR1} PATHS ${LIST_OF_PATHS} MODULE)
 
 #			find_package(${VAR1} PATHS ${LIST_OF_PATHS} CONFIG)
 #                       we do not want environment for find_package to be set if build_anyway is on, so we skip it!
-			if (${BUILD_ANYWAY} STREQUAL "OFF")
-			  message(STATUS "BUILD_ANYWAY IS ${BUILD_ANYWAY} - deciding if looking for package")
-			  find_package(${VAR1} PATHS ${LIST_OF_PATHS} CONFIG)
-			endif()
+#			if (${BUILD_ANYWAY} STREQUAL "OFF")
+#			  message(STATUS "BUILD_ANYWAY IS ${BUILD_ANYWAY} - deciding if looking for package")
+#jsl - is this the one that makes us find it? - so we need ${LIST_OF_PATHS}  ?
+
+
+
+#			  find_package(${VAR1} PATHS ${LIST_OF_PATHS} CONFIG)
+#			  find_package(${VAR1} PATHS CONFIG)  
+
+
+#			endif()
 #			find_package(${VAR1} PATHS CONFIG)
 
 		endif()

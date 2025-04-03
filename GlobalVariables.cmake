@@ -40,6 +40,16 @@
     set (APPEND_BUILD_TYPE "debug")
   endif()
 
+
+  if (EXISTS "${CMAKE_MODULE_PATH}")
+#  if (CMAKE_MODULE_PATH)
+     message(FAILURE "HERE")
+    set (CMAKE_MODULE_PATH ${CMAKE_INSTALL_PREFIX} ${CMAKE_INSTALL_PREFIX}/${APPEND_BUILD_TYPE} ${CMAKE_MODULE_PATH} ${CMAKE_MODULE_PATH}/${APPEND_BUILD_TYPE})
+  else()
+     message(FAILURE "HERE2")
+    set (CMAKE_MODULE_PATH ${CMAKE_INSTALL_PREFIX} ${CMAKE_INSTALL_PREFIX}/${APPEND_BUILD_TYPE})
+  endif()
+
   set (CMAKE_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX}/${APPEND_BUILD_TYPE})
 
   if(DEFINED CACHE{CMAKE_PRINT_DEBUG})
@@ -388,6 +398,8 @@
       set(${func_name}_build_type "--enable-build-mode=debug")
     endif()
 
+    file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/Find${func_name_cap}.cmake DESTINATION ${${func_name}_DESTDIR})
+
     ExternalProject_Add(${func_name}
       SOURCE_DIR "${GLOBAL1}/${func_name}"
 
@@ -471,7 +483,7 @@
 
 
           find_package(${func_name_cap})
-          if(${func_name_cap}_FOUND)
+          if(${func_name}_FOUND)
             message(STATUS "No need to build ${func_name_cap} - already found")
           else()
 	    message(STATUS "Could not find ${func_name_cap} - building ${func_name} now")
@@ -504,6 +516,8 @@
     if(${INSTALL_IN_SEPARATE_DIRS} EQUAL 1)
 	set (${func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX}/${func_name})
     endif()
+
+    file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/Find${func_name_cap}.cmake DESTINATION ${${func_name}_DESTDIR})
 
     if(DEFINED CACHE{CMAKE_PRINT_DEBUG})
         message ("Set ${func_name}_DESTDIR - value has been set to - ${${func_name}_DESTDIR}")
@@ -616,7 +630,6 @@
 
     file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/Find${func_name_cap}.cmake DESTINATION ${${func_name}_DESTDIR})
 
-
         find_package(${func_name_cap})
 
 #       if(PLPLOT_FOUND)
@@ -662,6 +675,8 @@
     if(${INSTALL_IN_SEPARATE_DIRS} EQUAL 1)
       set (${func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX}/${func_name})
     endif()
+
+    file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/Find${func_name_cap}.cmake DESTINATION ${${func_name}_DESTDIR})
 
     if(DEFINED CACHE{CMAKE_PRINT_DEBUG})
       message ("Set ${func_name}_DESTDIR - value has been set to - ${${func_name}_DESTDIR}")
@@ -802,6 +817,8 @@
 
 #    set(${func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX}/${func_name})
 
+	file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/Find${func_name_cap}.cmake DESTINATION ${${func_name}_DESTDIR})
+
     if(DEFINED CACHE{CMAKE_PRINT_DEBUG})
       message ("Set ${func_name}_DESTDIR - value has been set to - ${${func_name}_DESTDIR}")
     endif()
@@ -887,7 +904,7 @@
   file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/Find${func_name}.cmake  DESTINATION ${${func_name}_DESTDIR})
 
         find_package(${func_name_cap})
-        if(${func_name_cap}_FOUND)
+        if(${func_name}_FOUND)
           message(STATUS "No need to build ${func_name_cap} - already found")
         else()
 	  message(STATUS "Could not find ${func_name_cap} - building ${func_name} now")
@@ -921,6 +938,8 @@
     if(${INSTALL_IN_SEPARATE_DIRS} EQUAL 1)
       set (${func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX}/${func_name})
     endif()
+
+  file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/Find${func_name}.cmake  DESTINATION ${${func_name}_DESTDIR})
 
     if(DEFINED CACHE{CMAKE_PRINT_DEBUG})
       message ("Set ${func_name}_DESTDIR - value has been set to - ${${func_name}_DESTDIR}")
@@ -1110,8 +1129,7 @@ function(now_really_build_fgsl)
         endif()
 
   file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/Find${pre_func_name_cap}.cmake  DESTINATION ${${pre_func_name}_DESTDIR})
-
-
+  file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/Find${func_name_cap}.cmake DESTINATION ${GLOBAL1}/${${func_name}_DESTDIR})
 
   find_package(${pre_func_name_cap})
 
@@ -1617,7 +1635,7 @@ function(build_lapack95)
 	file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/Find${func_name_cap}.cmake DESTINATION ${${func_name}_DESTDIR})
 
       find_package(${func_name_cap})
-      if(${func_name_cap}_FOUND)
+      if(${func_name}_FOUND)
         message(STATUS "No need to build ${func_name_cap} - already found")
       else()
 	message(STATUS "Could not find ${func_name_cap} - building lapack95 now")
@@ -1773,6 +1791,8 @@ function(now_really_build_xraylib)
   if(${INSTALL_IN_SEPARATE_DIRS} EQUAL 1)
     set (${func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX}/${func_name})
   endif()
+
+  file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/Find${func_name_cap}.cmake  DESTINATION ${${func_name}_DESTDIR})
 
   message(STATUS "set ${func_name}_srcdir to ${CMAKE_CURRENT_BINARY_DIR}/${func_name}-prefix - value of ${func_name}_destdir is ${${func_name}_DESTDIR}")
 

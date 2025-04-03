@@ -1,3 +1,4 @@
+#do not expect a lapack95 header file
 find_path(lapack95_INCLUDE_DIR lapack95.h ${CMAKE_MODULE_PATH}/include/lapack95)
 #find_library(lapack95_LIBRARY lapack95)
 #find_path(lapack95_INCLUDE_DIR lapack95.h)
@@ -6,14 +7,15 @@ message(STATUS "Looking in ${lapack95_SRCDIR} ${CMAKE_MODULE_PATH} for lapack95 
 #find_library(lapack95_LIBRARY ${lapack95_SRCDIR} lapack95)
 find_library(lapack95_LIBRARY liblapack95.so ${lapack95_SRCDIR} ${CMAKE_MODULE_PATH}/lib)
 
-if(lapack95_INCLUDE_DIR)
-	message (STATUS "found lapack95.h - so now have a valid include dir")
-endif()
+#if(lapack95_INCLUDE_DIR)
+#	message (STATUS "found lapack95.h - so now have a valid include dir")
+#endif()
 if(lapack95_LIBRARY)
 	message (STATUS "found lapack95.so or .a -  - so now have a valid library")
 endif()
 
-if(lapack95_INCLUDE_DIR AND lapack95_LIBRARY)
+#if(lapack95_INCLUDE_DIR AND lapack95_LIBRARY)
+if(lapack95_LIBRARY)
   set(lapack95_FOUND TRUE)
   message(STATUS "All is good - continuing")
 else()
@@ -21,7 +23,7 @@ else()
 endif()
 
 if(lapack95_FOUND)
-  set(lapack95_LIBRARIES ${lapack95_LIBRARY})
+#  set(lapack95_LIBRARIES ${lapack95_LIBRARY})
   set(lapack95_INCLUDE_DIRS ${lapack95_INCLUDE_DIR})
 endif()
 

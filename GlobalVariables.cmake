@@ -1649,7 +1649,7 @@ function(now_really_build_lapack95)
   MESSAGE (STATUS "Values: rename -  ${CMAKE_ROLLOUT_CMAKE_FILES}/${func_name_cap}_CMakeLists.txt   -  ${GLOBAL1}/${func_name}/CMakeLists.txt")
 #  file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/${func_name_cap}_CMakeLists.txt DESTINATION ${${func_name}_DESTDIR})
   file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/${func_name_cap}_CMakeLists.txt DESTINATION ${GLOBAL1}/${func_name})
-  file(RENAME ${GLOBAL1}/${func_name}/${func_name_cap}_CMakeLists.txt ${GLOBAL1}/${func_name_cap}_CMakeLists.txt)
+  file(RENAME ${GLOBAL1}/${func_name}/${func_name_cap}_CMakeLists.txt ${GLOBAL1}/${func_name}/CMakeLists.txt)
 
   set(${func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX})
 

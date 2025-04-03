@@ -34,6 +34,19 @@
     message (STATUS "SETTING EXTERNAL_BMAD_DIRECTORY to value of ${BUILD_DIR}")
   endif()
 
+  set (APPEND_BUILD_TYPE "production")
+  # now add on to the CMAKE_INSTALL_PREFIX the BUILD_TYPE
+  if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+    set (APPEND_BUILD_TYPE "debug")
+  endif()
+
+  set (CMAKE_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX}/${APPEND_BUILD_TYPE})
+
+  if(DEFINED CACHE{CMAKE_PRINT_DEBUG})
+    message (STATUS "2. CMAKE INSTALL DIRECTORY IS '${CMAKE_INSTALL_PREFIX}'")
+    message (STATUS "2. SETTING EXTERNAL_BMAD_DIRECTORY to value of ${BUILD_DIR}")
+  endif()  
+
   set(INSTALL_IN_SEPARATE_DIRS 0)
 #set_property(GLOBAL PROPERTY INSTALL_IN_SEPARATE_DIRS 0)
 
@@ -58,7 +71,8 @@
     if(DEFINED CACHE{CMAKE_PRINT_DEBUG})
       message(STATUS "Making sure the directory ${GLOBAL1} exists - if it does not, we create it")
     endif()
-    ensure_directory_exists("" ${GLOBAL1} "yes")
+#jsl - do we need this anymore?
+#    ensure_directory_exists("" ${GLOBAL1} "yes")
     install_the_external_package(${GLOBAL1} ${package_name})
   endfunction()
 
@@ -68,7 +82,9 @@
     message(STATUS "Now in 'install_the_external...' - A function with argument ${package_name}")
 # do we know the name of the directory for this package_name 
 # is it different than the package name itself?
-    ensure_directory_exists(${path} ${package_name} "no")
+
+#jsl - do we need this anymore?
+#    ensure_directory_exists(${path} ${package_name} "no")
     get_property(GLOBAL2 GLOBAL PROPERTY EXTERNAL_BMAD_SOURCE_DIRECTORY)
 
     message(STATUS "1. Going to look for ${GLOBAL2}/${package_name} - the directory with our source files - that was cloned from git")
@@ -84,7 +100,9 @@
   #define a function
   function(install_the_external_package1 path package_name)
     message(STATUS "Now in 'install_the_external...' - A function with argument ${package_name}")
-    ensure_directory_exists(${path} ${package_name} "no")
+
+#jsl - do we need this anymore?
+#    ensure_directory_exists(${path} ${package_name} "no")
     get_property(GLOBAL2 GLOBAL PROPERTY EXTERNAL_BMAD_SOURCE_DIRECTORY)
 # does it have anything in it?
 # if no, copy the tarfile to this location and untar it
@@ -140,6 +158,7 @@
 	#	2
 	# create the directory
 			
+
 	file(MAKE_DIRECTORY ${P_WITH_D_MAYBE})
 		
 	# a last check to make sure we created it - otherwise, fail out of everything
@@ -168,12 +187,12 @@
 #	COMMAND ${CMAKE_COMMAND} -E tar xvzf {path}/${dirname}.tar.gz
 #no longer doing extract - just files should be here now!
 #	file(ARCHIVE_EXTRACT INPUT ${path}/${dirname}.tar.gz DESTINATION ${path})
-    message(STATUS "HERE NOW ${path}")
+#    message(STATUS "HERE NOW ${path}")
     if ("${dirname}" STREQUAL "hdf5")
       build_hdf5()
-      message (STATUS "is ${dirname} hdf5")
+#      message (STATUS "is ${dirname} hdf5")
     else()
-      message (STATUS "is ${dirname} not hdf5")
+#      message (STATUS "is ${dirname} not hdf5")
       if ("${dirname}" STREQUAL "lapack")
         build_lapack()
       elseif ("${dirname}" STREQUAL "plplot")			
@@ -237,9 +256,12 @@
 
     include(ExternalProject)
 
+#    message (STATUS "IN SETTING OF HDF5_DESTDIR (function build_hdf5) - CMAKE_INSTALL_PREFIX IS ${CMAKE_INSTALL_PREFIX}")
+
     if(BUILD_${func_name_cap})
 
       message(STATUS "User wants to build ${func_name_cap}")
+
 
       if (BUILD_ANYWAY)
       # user does not care if there is a version of HDF5 on the system
@@ -254,43 +276,56 @@
 
 #        find_package(${func_name_cap} COMPONENTS Fortran)
 #        if(${func_name_cap}_Fortran_FOUND)
+
+    # set hdf5_DESTDIR to have install directory by default
+    set(${func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX})
+
+    if(${INSTALL_IN_SEPARATE_DIRS} EQUAL 1)
+      set (${func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX}/${func_name})
+    endif()
+
+        file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/Find${func_name_cap}.cmake DESTINATION ${${func_name}_DESTDIR})
+
+
 	find_package(${func_name_cap} COMPONENTS Fortran)
         if (${func_name}_FOUND)
   
-          message(STATUS "${func_name_cap}_Fortran was found - testing it")
-          message(STATUS "${func_name_cap} testing the fortran binary")
+#jsl - I do not see where this file exists - maybe a Scott special?
+          message(STATUS "${func_name_cap}_Fortran was found - continuing - Scott had a test that I am not implementing right now - do we need it?")
+#          message(STATUS "${func_name_cap}_Fortran was found - testing it")
+#          message(STATUS "${func_name_cap} testing the fortran binary")
 
-          set(test_hdf5_fn "${CMAKE_CURRENT_BINARY_DIR}/test-hdf5.f90")
+#          set(test_hdf5_fn "${CMAKE_CURRENT_BINARY_DIR}/test-hdf5.f90")
 
-          file(WRITE "${test_hdf5_fn}" "\
-            program hdf5_test\n\
-            use hdf5\n\
-            integer err\n\
-            call h5open_f(err)\n\
-            call h5close_f(err)\n\
-            end program hdf5_test\n"
-          )
+#          file(WRITE "${test_hdf5_fn}" "\
+#            program hdf5_test\n\
+#            use hdf5\n\
+#            integer err\n\
+#            call h5open_f(err)\n\
+#            call h5close_f(err)\n\
+#            end program hdf5_test\n"
+#          )
 
-          message(STATUS "compiling the test_hdf5")
+#          message(STATUS "compiling the test_hdf5")
 
-          try_compile(test_hdf5
-            "${CMAKE_CURRENT_BINARY_DIR}/test-hdf5"
-            SOURCES "${test_hdf5_fn}"
-            LINK_LIBRARIES ${HDF5_Fortran_LIBRARIES}
-            CMAKE_FLAGS "-DINCLUDE_DIRECTORIES=${HDF5_Fortran_INCLUDE_DIRS}"
-          )
-          file(REMOVE "${test_hdf5_fn}")
-          message(STATUS "Do we have test_hdf5")
+#          try_compile(test_hdf5
+#            "${CMAKE_CURRENT_BINARY_DIR}/test-hdf5"
+#            SOURCES "${test_hdf5_fn}"
+#            LINK_LIBRARIES ${HDF5_Fortran_LIBRARIES}
+#            CMAKE_FLAGS "-DINCLUDE_DIRECTORIES=${HDF5_Fortran_INCLUDE_DIRS}"
+#          )
+#          file(REMOVE "${test_hdf5_fn}")
+#          message(STATUS "Do we have test_hdf5")
 
-          if (NOT test_hdf5)
-	    message(STATUS "We do not have a valid test_hdf5")
-            now_really_build_hdf5()
+#          if (NOT test_hdf5)
+#	    message(STATUS "We do not have a valid test_hdf5")
+#            now_really_build_hdf5()
 
-          else()
+#          else()
 
-            message(STATUS "We have a valid version of ${func_name} - Add the ${func_name} target - 1")
+#            message(STATUS "We have a valid version of ${func_name} - Add the ${func_name} target - 1")
 
-          endif()  
+#          endif()  
   
         else()
 
@@ -339,13 +374,13 @@
       message(STATUS "Getting ready to set ${func_name}_DESTDIR to ${${func_name}_DESTDIR}")
     endif()
 
-    if(DEFINED CACHE{CMAKE_PRINT_DEBUG})
-      message ("Set ${func_name}_DESTDIR - value is now - ${${func_name}_DESTDIR}")
-    endif()
+#    if(DEFINED CACHE{CMAKE_PRINT_DEBUG})
+#      message ("Set ${func_name}_DESTDIR - value is now - ${${func_name}_DESTDIR}")
+#    endif()
 
-    if(DEFINED CACHE{CMAKE_PRINT_DEBUG})
-      message ("Set ${func_name}_DESTDIR - value before ExternalProject_Add is now - ${${func_name}_DESTDIR}")
-    endif()
+#    if(DEFINED CACHE{CMAKE_PRINT_DEBUG})
+#      message ("Set ${func_name}_DESTDIR - value before ExternalProject_Add is now - ${${func_name}_DESTDIR}")
+#    endif()
 
     set(${func_name}_build_type "--enable-build-mode=production")
 
@@ -372,6 +407,10 @@
 # THIS SWITCH DECIDES if .a or .so
 	"--disable-static"
 	"--disable-tests"
+	"--includedir=${${func_name}_DESTDIR}/include/${func_name}"
+# THIS did not work!! - directory doesn't exist - guessing I have to make it on my own if this is desired!
+#	"--with-fmoddir=${${func_name}_DESTDIR}/lib/fortran/modules/${func_name}"
+
 # THIS IS STILL CONFUSING - WHY IS BUILD_COMMAND OF JUST make - DOING A make install?
 # I THINK I READ SOMEWHERE THAT ExternalProject_Add ALWAYS DOES A make install - DOES THIS MAKE SENSE?
         BUILD_ALWAYS true
@@ -388,6 +427,9 @@
       USE_SOURCE_PERMISSIONS
     )
 
+#    file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/Find${func_name_cap}.cmake DESTINATION ${${func_name}_DESTDIR})
+#
+#    message(STATUS "Copy - From - ${CMAKE_ROLLOUT_CMAKE_FILES}/Find${func_name_cap}.cmake to ${${func_name}_DESTDIR}")
     message(STATUS "Finished setting up the build needed for ${func_name}")
 
   endfunction()
@@ -407,11 +449,26 @@
       if (BUILD_ANYWAY)
 
           message(STATUS "User wants to build ${func_name_cap} even if already installed")
+#	  set(CMAKE_DISABLE_FIND_PACKAGE_lapack TRUE)
+#	  message(STATUS "Value of CMAKE_DISABLE_FIND_PACKAGE_LAPACK is ${CMAKE_DISABLE_FIND_PACKAGE_lapack}")
           now_really_build_lapack()
 
         else()
 
           message(STATUS "Checking to see if we should build ${func_name_cap} - will not build if it is already installed")
+
+
+
+        # first layout how to find the file!
+        # set ${func_name}_DESTDIR to have install directory by default
+        set(${func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX})
+
+        if(${INSTALL_IN_SEPARATE_DIRS} EQUAL 1)
+          set (${func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX}/${func_name})
+        endif()
+
+    file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/Find${func_name_cap}.cmake DESTINATION ${${func_name}_DESTDIR})
+
 
           find_package(${func_name_cap})
           if(${func_name_cap}_FOUND)
@@ -452,7 +509,6 @@
         message ("Set ${func_name}_DESTDIR - value has been set to - ${${func_name}_DESTDIR}")
     endif()
 
-
     ExternalProject_Add(${func_name}
 	SOURCE_DIR "${GLOBAL1}/${func_name}"
 
@@ -461,12 +517,41 @@
 	  -DBUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
 	  # need this otherwise end up with ${func_name} and blas in /lib64!
 #          -DBUILD_INDEX64_EXT_API:STRING="OFF"
-          -DBUILD_INDEX="OFF"
-          -DBUILD_INDEX64_EXT_API="OFF"
-          -DCMAKE_BUILD_TYPE="${CMAKE_BUILD_TYPE}"
-	  -DCMAKE_Fortran_FLAGS="-m32"
-          -DCMAKE_C_FLAGS="-m32"
+          -DBUILD_INDEX=OFF
+          -DBUILD_INDEX64_EXT_API=OFF
+          -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+#	  -DCMAKE_IN
+#	  -DCMAKE_Fortran_FLAGS=-m32
+#          -DCMAKE_C_FLAGS=-m32
 # -D CMAKE_Fortran_FLAGS="-m32"
+
+#		-DCMAKE_INSTALL_PREFIX=${OUTPUT_DIR} \
+#		-DBUILD_SHARED_LIBS=ON \
+#		-DBUILD_TESTING=${TEST_STATUS} \
+		-DBUILD_DEPRECATED=YES
+		-DCBLAS=OFF
+		-DLAPACKE=ON
+		-DLAPACKE_WITH_TMG=ON
+#		-DCMAKE_BUILD_TYPE=${BUILD_TYPE} \
+#		-DCMAKE_INSTALL_LIBDIR=${${func_name}_DESTDIR}/lib
+	#jsl - this from david - but I am adding library name!
+		-DCMAKE_INSTALL_LIBDIR=${${func_name}_DESTDIR}/lib
+                -DCMAKE_INSTALL_INCLUDEDIR=${${func_name}_DESTDIR}/include/${func_name}
+#		-DCMAKE_INSTALL_INCDIR=${${func_name}_DESTDIR}/lib/lapack
+
+	
+#jsl - NOT SURE IF SHOULD BE SENT TO ./lib/fortran/modules/plplot or ./lib/fortran/modules
+
+       		-DCMAKE_Fortran_MODULE_DIRECTORY=${${func_name}_DESTDIR}/lib/fortran/modules/${func_name}
+
+#		-DCMAKE_Fortran_MODULE_DIRECTORY=${${func_name}_DESTDIR}/lib/fortran/modules
+
+
+#		-DCMAKE_Fortran_COMPILER=${FC} \
+#		-DCMAKE_Fortran_COMPILER_WORKS=TRUE \
+#		-DCMAKE_C_COMPILER_WORKS=TRUE \
+
+
 
         CMAKE_CACHE_ARGS
 	  -DCMAKE_C_COMPILER:STRING=${CMAKE_C_COMPILER}
@@ -486,7 +571,7 @@
     	USE_SOURCE_PERMISSIONS
     )
 
-    file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/Find${func_name_cap}.cmake DESTINATION ${${func_name}_DESTDIR})
+#    file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/Find${func_name_cap}.cmake DESTINATION ${${func_name}_DESTDIR})
 
     message(STATUS "Finished setting up the build needed for ${func_name}")
 
@@ -519,6 +604,18 @@
         if(DEFINED CACHE{CMAKE_PRINT_DEBUG})
           message(STATUS "Checking to see if we should build ${func_name_cap} - will not build if it is already installed")
         endif()
+
+
+        # first layout how to find the file!
+        # set ${func_name}_DESTDIR to have install directory by default
+        set(${func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX})
+
+        if(${INSTALL_IN_SEPARATE_DIRS} EQUAL 1)
+          set (${func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX}/${func_name})
+        endif()
+
+    file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/Find${func_name_cap}.cmake DESTINATION ${${func_name}_DESTDIR})
+
 
         find_package(${func_name_cap})
 
@@ -583,6 +680,7 @@
         -DDEFAULT_NO_BINDINGS=ON
         -DENABLE_fortran:BOOL=ON
         -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+        -DFORTRAN_MOD_DIR=${${func_name}_DESTDIR}/lib/fortran/modules
 
       CMAKE_CACHE_ARGS
         -DCMAKE_C_COMPILER:STRING=${CMAKE_C_COMPILER}
@@ -629,8 +727,8 @@
 
 #    file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/Find${func_name}lib.cmake DESTINATION ${GLOBAL1}/${func_name})
 #    file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/FindPLPLOT.cmake DESTINATION ${GLOBAL1}/${func_name})
-    file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/Find${func_name_cap}.cmake DESTINATION ${${func_name}_DESTDIR})
-
+#    file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/Find${func_name_cap}.cmake DESTINATION ${${func_name}_DESTDIR})
+#
     message(STATUS "Finished setting up the build needed for ${func_name}")
 
   endfunction()
@@ -655,8 +753,18 @@
 
         message(STATUS "Checking to see if we should build ${func_name_cap} - will not build if it is already installed")
 
+        # first layout how to find the file!
+        # set ${func_name}_DESTDIR to have install directory by default
+        set(${func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX})
+
+        if(${INSTALL_IN_SEPARATE_DIRS} EQUAL 1)
+          set (${func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX}/${func_name})
+        endif()
+
+	file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/Find${func_name_cap}.cmake DESTINATION ${${func_name}_DESTDIR})
+
         find_package(${func_name_cap})
-        if(${func_name_cap}_FOUND)
+        if(${func_name}_FOUND)
           message(STATUS "No need to build ${func_name_cap} - already found")
         else()
 	  message(STATUS "Could not find ${func_name_cap} - building ${func_name} now")
@@ -692,7 +800,6 @@
       set (${func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX}/${func_name})
     endif()
 
-
 #    set(${func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX}/${func_name})
 
     if(DEFINED CACHE{CMAKE_PRINT_DEBUG})
@@ -713,10 +820,13 @@
         "--prefix=${${func_name}_DESTDIR}"
         # need this otherwise end up with lapack and blas ${func_name}3 in /lib64 and not a shared object!!
 	"--enable-shared"
+	"--includedir=${${func_name}_DESTDIR}/include/${func_name}"
 	"${${func_name}_build_type}"
+	
 
       CMAKE_ARGS
         -DCMAKE_INSTALL_PREFIX:PATH=${${func_name}_DESTDIR}
+#        -DCMAKE_INSTALL_INCLUDEDIR=${${func_name}_DESTDIR}/include/${func_name}
 	-DBUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
         -DENABLE_fortran:BOOL=ON
 
@@ -741,97 +851,109 @@
     	USE_SOURCE_PERMISSIONS
     )
 
-    file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/Find${func_name}lib.cmake DESTINATION ${GLOBAL1}/${func_name})
+#    file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/Find${func_name}lib.cmake DESTINATION ${${func_name}_DESTDIR})
 
     message(STATUS "Finished setting up the build needed for ${func_name}")
 
   endfunction()
 
-function(build_openmpi)
+  function(build_openmpi)
 
-  include(ExternalProject)
+    set (func_name openmpi)
+    set (func_name_cap OPENMPI)
 
-  if(BUILD_OPENMPI)
+    include(ExternalProject)
 
-    message(STATUS "User wants to build OPENMPI")
+    if(BUILD_${func_name_cap})
 
-    if (BUILD_ANYWAY)
+      message(STATUS "User wants to build ${func_name_cap}")
 
-      message(STATUS "User wants to build OPENMPI even if already installed")
-      now_really_build_openmpi()
+      if (BUILD_ANYWAY)
 
+        message(STATUS "User wants to build ${func_name_cap} even if already installed")
+        now_really_build_openmpi()
+
+      else()
+
+        message(STATUS "Checking to see if we should build ${func_name_cap} - will not build if it is already installed")
+
+        set(${func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX})
+
+        if(${INSTALL_IN_SEPARATE_DIRS} EQUAL 1)
+          set (${func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX}/${func_name})
+        endif()
+
+#  file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/Find${func_name}lib.cmake  DESTINATION ${${func_name}_DESTDIR})
+  file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/Find${func_name}.cmake  DESTINATION ${${func_name}_DESTDIR})
+
+        find_package(${func_name_cap})
+        if(${func_name_cap}_FOUND)
+          message(STATUS "No need to build ${func_name_cap} - already found")
+        else()
+	  message(STATUS "Could not find ${func_name_cap} - building ${func_name} now")
+  	now_really_build_openmpi()
+        endif()
+
+      endif()
     else()
 
-      message(STATUS "Checking to see if we should build OPENMPI - will not build if it is already installed")
-
-      find_package(OPENMPI)
-      if(OPENMPI_FOUND)
-        message(STATUS "No need to build OPENMPI - already found")
-      else()
-	message(STATUS "Could not find OPENMPI - building openmpi now")
-	now_really_build_openmpi()
-      endif()
+      message(STATUS "No need to build ${func_name_cap}")
 
     endif()
 
-  else()
+  endfunction()
 
-    message(STATUS "No need to build OPENMPI")
+  function(now_really_build_openmpi)
 
-  endif()
+    set(func_name "openmpi")
+    set(func_name "OPENMPI")
 
-endfunction()
+    message(STATUS "Now really building ${func_name}")
 
-function(now_really_build_openmpi)
+    get_property(GLOBAL2 GLOBAL PROPERTY EXTERNAL_BMAD_SOURCE_DIRECTORY)
+    get_property(GLOBAL1 GLOBAL PROPERTY BMAD_EXTERNAL_PACKAGES)
 
-  set(func_name "openmpi")
-
-  message(STATUS "Now really building ${func_name}")
-
-  get_property(GLOBAL2 GLOBAL PROPERTY EXTERNAL_BMAD_SOURCE_DIRECTORY)
-  get_property(GLOBAL1 GLOBAL PROPERTY BMAD_EXTERNAL_PACKAGES)
-
-  message(STATUS "Values - global1 ${GLOBAL1} global2 ${GLOBAL2} ${func_name}_destdir ${${func_name}_DESTDIR}")
+#    message(STATUS "Values - global1 ${GLOBAL1} global2 ${GLOBAL2} ${func_name}_destdir ${${func_name}_DESTDIR}")
 
   # set ${func_name}_DESTDIR to have install directory by default
-  set(${func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX})
+    set(${func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX})
 
-  if(${INSTALL_IN_SEPARATE_DIRS} EQUAL 1)
-    set (${func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX}/${func_name})
-  endif()
+    if(${INSTALL_IN_SEPARATE_DIRS} EQUAL 1)
+      set (${func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX}/${func_name})
+    endif()
 
-  if(DEFINED CACHE{CMAKE_PRINT_DEBUG})
-    message ("Set ${func_name}_DESTDIR - value has been set to - ${${func_name}_DESTDIR}")
-  endif()
+    if(DEFINED CACHE{CMAKE_PRINT_DEBUG})
+      message ("Set ${func_name}_DESTDIR - value has been set to - ${${func_name}_DESTDIR}")
+    endif()
 
-  message(STATUS "autoreconf dir is ${CMAKE_CURRENT_BINARY_DIR}/${func_name}-prefix")
-  set(${func_name}_autoreconfdir "${CMAKE_CURRENT_BINARY_DIR}/${func_name}-prefix")
+    message(STATUS "autoreconf dir is ${CMAKE_CURRENT_BINARY_DIR}/${func_name}-prefix")
+    set(${func_name}_autoreconfdir "${CMAKE_CURRENT_BINARY_DIR}/${func_name}-prefix")
 
-  if(EXISTS ${GLOBAL1}/${func_name}/configure.ac)
-  	message (STATUS "Directory ${GLOBAL1}/${func_name} does exist!")
-  else()
-  	message (STATUS "Directory ${GLOBAL1}/${func_name} does not exist")
-  endif()
+    if(EXISTS ${GLOBAL1}/${func_name}/configure.ac)
+      message (STATUS "Directory ${GLOBAL1}/${func_name} does exist!")
+    else()
+      message (STATUS "Directory ${GLOBAL1}/${func_name} does not exist")
+    endif()
 
-  execute_process(
-    WORKING_DIRECTORY "${GLOBAL1}/${func_name}"
-    COMMAND "autogen.pl"
+    execute_process(
+      WORKING_DIRECTORY "${GLOBAL1}/${func_name}"
+      COMMAND "autogen.pl"
       "--force"
 #  "--install"
 #    COMMAND "autoreconf" "--install"
 #    COMMAND "autoreconf" "-f" "-i"
-    RESULT_VARIABLE status
-  )
+      RESULT_VARIABLE status
+    )
 
-  execute_process(
-    WORKING_DIRECTORY "${GLOBAL1}/${func_name}"
+    execute_process(
+      WORKING_DIRECTORY "${GLOBAL1}/${func_name}"
 #    COMMAND "autogen.pl"
 #  "--install"
-    COMMAND "autoreconf"
+      COMMAND "autoreconf"
       "--install"
 #    COMMAND "autoreconf" "-f" "-i"
-    RESULT_VARIABLE status
-  )
+      RESULT_VARIABLE status
+    )
 
 #  execute_process(
 #    WORKING_DIRECTORY "${GLOBAL1}/${func_name}"
@@ -844,76 +966,94 @@ function(now_really_build_openmpi)
 
 #  message (STATUS "Result of autoreconf is ${status}")
 
-  message(STATUS "finished with autoreconf dir in ${GLOBAL1}/${func_name} - status is ${status}")
+    message(STATUS "finished with autoreconf dir in ${GLOBAL1}/${func_name} - status is ${status}")
 
-  set (${func_name}_build_type "")
-  if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
-    set(${func_name}_build_type "--enable-debug")
-  endif()
+    set (${func_name}_build_type "")
+    if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+      set(${func_name}_build_type "--enable-debug")
+    endif()
 
-  ExternalProject_Add(${func_name}
+    ExternalProject_Add(${func_name}
 
-    SOURCE_DIR "${GLOBAL1}/${func_name}"
-    CONFIGURE_COMMAND
-      "${GLOBAL1}/${func_name}/configure"
-      "--prefix=${${func_name}_DESTDIR}"
-      "--enable-shared=${BUILD_SHARED_LIBS}"
-      "${${func_name}_build_type}"
+      SOURCE_DIR "${GLOBAL1}/${func_name}"
+      CONFIGURE_COMMAND
+        "${GLOBAL1}/${func_name}/configure"
+        "--prefix=${${func_name}_DESTDIR}"
+        "--enable-shared=${BUILD_SHARED_LIBS}"
+        "${${func_name}_build_type}"
 
-    CMAKE_ARGS
-      -DCMAKE_INSTALL_PREFIX:PATH=${${func_name}_DESTDIR}
-      -DBUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
-      -DENABLE_fortran:BOOL=ON
+      CMAKE_ARGS
+        -DCMAKE_INSTALL_PREFIX:PATH=${${func_name}_DESTDIR}
+        -DBUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
+        -DENABLE_fortran:BOOL=ON
 
-    CMAKE_CACHE_ARGS
-      -DCMAKE_C_COMPILER:STRING=${CMAKE_C_COMPILER}
-      -DCMAKE_CXX_COMPILER:STRING=${CMAKE_CXX_COMPILER}
+      CMAKE_CACHE_ARGS
+        -DCMAKE_C_COMPILER:STRING=${CMAKE_C_COMPILER}
+        -DCMAKE_CXX_COMPILER:STRING=${CMAKE_CXX_COMPILER}
 
-    CMAKE_ARGS
-      -DCMAKE_VERBOSE_MAKEFILE=true
+      CMAKE_ARGS
+        -DCMAKE_VERBOSE_MAKEFILE=true
     
-    BUILD_ALWAYS true
-    BUILD_COMMAND make
-    INSTALL_COMMAND make install
-  )
+      BUILD_ALWAYS true  
+      BUILD_COMMAND make
+      INSTALL_COMMAND make install
+    )
 
-  message ("Set ${func_name}_DESTDIR - value After ExternalProject_Add is now - ${${func_name}_DESTDIR}")
+    message ("Set ${func_name}_DESTDIR - value After ExternalProject_Add is now - ${${func_name}_DESTDIR}")
 
-  install(
-    DIRECTORY
-    COMPONENT ${func_name}
-    DESTINATION "${${func_name}_DESTDIR}"
-    USE_SOURCE_PERMISSIONS
-  )
+    install(
+      DIRECTORY
+      COMPONENT ${func_name}
+      DESTINATION "${${func_name}_DESTDIR}"
+      USE_SOURCE_PERMISSIONS
+    )
 
-  file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/Find${func_name}lib.cmake DESTINATION ${GLOBAL1}/${func_name})
+#  file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/Find${func_name}lib.cmake  DESTINATION ${${func_name}_DESTDIR})
 
-  message(STATUS "Finished setting up the build needed for ${func_name}")
+    message(STATUS "Finished setting up the build needed for ${func_name}")
 
-endfunction()  
+  endfunction()
 
-function(build_fgsl)
 
-  include(ExternalProject)
+  function(build_fgsl1)
 
-  if(BUILD_FGSL)
+    include(ExternalProject)
 
-    message(STATUS "User wants to build FGSL")
+    if(BUILD_FGSL)
 
-    if (BUILD_ANYWAY)
+      message(STATUS "User wants to build FGSL")
 
-      message(STATUS "User wants to build FGSL even if already installed")
-      now_really_build_fgsl()
+      if (BUILD_ANYWAY)
+
+        message(STATUS "User wants to build FGSL even if already installed")
+        now_really_build_fgsl()
 
     else()
 
       message(STATUS "Checking to see if we should build FGSL - will not build if it is already installed")
 
+
+        # set ${func_name}_DESTDIR to have install directory by default
+        set(${func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX})
+
+        if(${INSTALL_IN_SEPARATE_DIRS} EQUAL 1)
+          set (${func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX}/${func_name})
+        endif()
+
+      file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/Find${func_name}.cmake DESTINATION ${GLOBAL1}/${func_name})
+
       find_package(FGSL)
-      if(FGSL_FOUND)
+#      if(${func_name}_FOUND)
+#      find_package(${func_name_cap})
+
+#      if(${func_name}_FOUND)
+
+#      if(fgsl_FOUND)
+      message (STATUS "value of JSL_FOUND is ${JSL_FOUND}")
+      if(JSL_FOUND)
         message(STATUS "No need to build FGSL - already found")
       else()
-	message(STATUS "Could not find FGSL - building fgsl now")
+#	message(STATUS "Could not find FGSL - building fgsl now")
 	now_really_build_fgsl()
       endif()
 
@@ -929,11 +1069,14 @@ endfunction()
 
 function(now_really_build_fgsl)
 
+  set(pre_func_name "gsl")
+  set(pre_func_name_cap "GSL")
   set(func_name "fgsl")
+  set(func_name_cap "FGSL")
 
   message(STATUS "Now really building ${func_name}")
 
-  message(STATUS "Have reached here - fgsl")
+  message(STATUS "Have reached here - ${func_name}")
 
   get_property(GLOBAL2 GLOBAL PROPERTY EXTERNAL_BMAD_SOURCE_DIRECTORY)
   get_property(GLOBAL1 GLOBAL PROPERTY BMAD_EXTERNAL_PACKAGES)
@@ -942,24 +1085,318 @@ function(now_really_build_fgsl)
 #  message ("Value of global2 is ${GLOBAL2}")
 #  message ("Value of CMAKE_CURRENT_BINARY_DIR is ${CMAKE_CURRENT_BINARY_DIR}")
 
-  set(gsl_DESTDIR ${CMAKE_INSTALL_PREFIX})
-  set(fgsl_DESTDIR ${CMAKE_INSTALL_PREFIX})
+  set(${pre_func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX})
+  set(${func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX})
 
   if(${INSTALL_IN_SEPARATE_DIRS} EQUAL 1)
-    set (gsl_DESTDIR ${CMAKE_INSTALL_PREFIX}/gsl)
-    set (fgsl_DESTDIR ${CMAKE_INSTALL_PREFIX}/fgsl)
+    set (${pre_func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX}/gsl)
+    set (${func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX}/${func_name})
   endif()
 
   if(DEFINED CACHE{CMAKE_PRINT_DEBUG})
-    message ("Set gsl_DESTDIR - value has been set to - ${gsl_DESTDIR}")
-    message ("Set fgsl_DESTDIR - value has been set to - ${fgsl_DESTDIR}")
+    message ("Set ${pre_func_name}_DESTDIR - value has been set to - ${${pre_func_name}_DESTDIR}")
+    message ("Set ${func_name}_DESTDIR - value has been set to - ${${func_name}_DESTDIR}")
   endif()
 
   message(STATUS "In GlobalVariables.cmake - Building the project with a build type of ${CMAKE_BUILD_TYPE}")
 
   set(NEED_TO_BUILD_GSL 0)
 
-  find_package(GSL)
+        # set ${func_name}_DESTDIR to have install directory by default
+        set(${pre_func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX})
+
+        if(${INSTALL_IN_SEPARATE_DIRS} EQUAL 1)
+          set (${pre_func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX}/${pre_func_name})
+        endif()
+
+  file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/Find${pre_func_name_cap}.cmake  DESTINATION ${${pre_func_name}_DESTDIR})
+
+
+
+  find_package(${pre_func_name_cap})
+
+  if(${pre_func_name}_VERSION)
+
+    set(STR1 ${${pre_func_name}_VERSION})
+    set(STR2 "2.6")
+
+    if("${STR1}" VERSION_LESS "${STR2}")
+
+      message(STATUS "Installed version is less than 2.6 - build GSL")
+      set(NEED_TO_BUILD_${pre_func_name} 1)
+ 
+    else()
+
+      message(STATUS "Installed version is equal to or greater than 2.6 - no need to build ${pre_func_name}")
+      if (${CMAKE_INSTALL_ANYWAY})
+        message(STATUS "Installing ${pre_func_name} anyway - that is, we found the right version, but laying down code to build anyway")
+	set(NEED_TO_BUILD_${pre_func_name} 1)
+      endif()
+	
+    endif()
+
+  else()
+
+    message(STATUS "No ${pre_func_name} version found - probably not installed - build ${pre_func_name}")
+    set(NEED_TO_BUILD_${pre_func_name} 1)
+
+  endif()
+
+  if (${NEED_TO_BUILD_${pre_func_name}} EQUAL 1)
+
+    set(${pre_func_name}_build_type "")
+
+    if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+      set(${pre_func_name}_build_type "CFLAGS=-g -O0")
+#      set(gsl_build_type "-d")
+    endif()
+
+    ExternalProject_Add(${pre_func_name}
+
+      SOURCE_DIR "${GLOBAL1}/${pre_func_name}"
+
+      CONFIGURE_COMMAND
+
+        "${GLOBAL1}/${pre_func_name}/configure"
+        "--prefix=${${pre_func_name}_DESTDIR}"
+        "--enable-shared"
+        "--disable-static"
+	"--disable-tests"
+	"${${pre_func_name}_build_type}"
+
+      CMAKE_ARGS
+	-DCMAKE_INSTALL_PREFIX:PATH=${${pre_func_name}_DESTDIR}
+        -DBUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
+
+      CMAKE_CACHE_ARGS
+	-DCMAKE_C_COMPILER:STRING=${CMAKE_C_COMPILER}
+        -DCMAKE_CXX_COMPILER:STRING=${CMAKE_CXX_COMPILER}
+
+      BUILD_ALWAYS true
+      BUILD_COMMAND make
+      INSTALL_COMMAND make install
+    )
+
+    message ("Set ${pre_func_name}_DESTDIR - value After ExternalProject_Add is now - ${${pre_func_name}_DESTDIR}")
+
+    install(
+      DIRECTORY
+      COMPONENT ${pre_func_name}
+      DESTINATION "${${pre_func_name}_DESTDIR}"
+      USE_SOURCE_PERMISSIONS
+    )
+
+    message(STATUS "Finished the NEED TO BUILD section for ${pre_func_name}")
+
+  else()
+
+    add_custom_target(${pre_func_name} "true")
+    message(STATUS "No reason to build ${pre_func_name}")
+
+  endif()
+
+  message(STATUS "Finished setting up the build needed for ${pre_func_name}")
+
+  if(EXISTS ENV{PKG_CONFIG_PATH})
+    message ("pkg_config_path does exist")
+    set(${func_name}_pc_flags "PKG_CONFIG_PATH=${CMAKE_INSTALL_PREFIX}/${pre_func_name}/lib/pkgconfig:$ENV{PKG_CONFIG_PATH}")
+  else()
+    message ("pkg_config_path does not exist")
+    set(${func_name}_pc_flags "PKG_CONFIG_PATH=${CMAKE_INSTALL_PREFIX}/${pre_func_name}/lib/pkgconfig")
+  endif()
+
+  message ("Starting setup of ${func_name}")
+
+  if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
+    set(${func_name}_fcflags "-ffree-line-length-none")
+  endif()
+
+  if ("${CMAKE_Fortran_FLAGS}" STREQUAL "" AND DEFINED ${func_name}_fcflags)
+    set (${func_name}_fcflags "FCFLAGS=${${func_name}_fcflags}")
+  elseif (NOT "${CMAKE_Fortran_FLAGS}" STREQUAL "" AND NOT DEFINED ${func_name}_fcflags)
+    set (${func_name}_fcflags "FCFLAGS=${CMAKE_Fortran_FLAGS}")
+  elseif (NOT "${CMAKE_Fortran_FLAGS}" STREQUAL "" AND DEFINED ${func_name}_fcflags)
+    set (${func_name}_fcflags "FCFLAGS=${CMAKE_Fortran_FLAGS} ${${func_name}_fcflags}")
+  endif()
+
+  set(${func_name}_pc_flags "PKG_CONFIG_PATH=${CMAKE_CURRENT_BINARY_DIR}/${pre_func_name}-prefix/src/${pre_func_name}-build:$ENV{PKG_CONFIG_PATH}")
+
+  message(STATUS "Defining ExternalProject_Add for ${func_name}")
+
+  message(STATUS "set ${func_name}_srcdir to ${CMAKE_CURRENT_BINARY_DIR}/${func_name}-prefix")
+
+  set(${func_name}_srcdir "${CMAKE_CURRENT_BINARY_DIR}/${func_name}-prefix")
+	
+  message(STATUS "Execute process autoreconf now!")
+
+  message(STATUS " Another test")
+
+  message(STATUS "autoreconf dir is ${CMAKE_CURRENT_BINARY_DIR}/${func_name}-prefix")
+  set(${func_name}_autoreconfdir "${CMAKE_CURRENT_BINARY_DIR}/${func_name}-prefix")
+
+  if(EXISTS ${GLOBAL1}/${func_name}/configure.ac)
+    message (STATUS "Directory ${GLOBAL1}/${func_name} does exist!")
+  else()
+    message (STATUS "Directory ${GLOBAL1}/${func_name} does not exist")
+  endif()
+  
+# NOTE - JSL - I do not know how to set this to build into the build directory - modifies - that is, puts files into - the external package area.
+
+  execute_process(
+    WORKING_DIRECTORY "${GLOBAL1}/${func_name}"
+    COMMAND "autoreconf" "--install"
+    RESULT_VARIABLE status
+  )
+
+  message(STATUS "finished with autoreconf dir in ${GLOBAL1}/${func_name} - status is ${status}")
+
+  message("PKG_CONFIG_PATH: $ENV{PKG_CONFIG_PATH} ${${func_name}_pc_flags}") 
+
+  set(${func_name}_build_type "")
+
+  if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+      set(${func_name}_build_type "CFLAGS=-g -O0")
+#    set(fgsl_build_type "--debug")
+  endif()
+
+  ExternalProject_Add(${func_name}
+    SOURCE_DIR "${GLOBAL1}/${func_name}"
+    CONFIGURE_COMMAND
+      "${GLOBAL1}/${func_name}/configure"
+      "--prefix=${${func_name}_DESTDIR}"
+      "--disable-static"
+      "${${func_name}_fcflags}"
+      "${${func_name}_pc_flags}"
+      "${${func_name}_build_type}"
+
+    CMAKE_ARGS
+      -DBUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
+
+    CMAKE_CACHE_ARGS
+      -DCMAKE_C_COMPILER:STRING=${CMAKE_C_COMPILER}
+      -DCMAKE_CXX_COMPILER:STRING=${CMAKE_CXX_COMPILER}
+
+    BUILD_ALWAYS true
+    BUILD_COMMAND make -j 1
+    INSTALL_COMMAND make install
+  )
+
+  message ("Set ${func_name}_DESTDIR - value After ExternalProject_Add is now - ${${func_name}_DESTDIR}")
+
+  if (${NEED_TO_BUILD_GSL} EQUAL 1)
+    message(STATUS "If we had to build our own ${pre_func_name} - Set up dependency for ${func_name} - it depends on ${pre_func_name}!")
+    add_dependencies(${func_name} ${pre_func_name})
+  endif()
+
+  install(
+    DIRECTORY
+    COMPONENT ${func_name}
+    DESTINATION "${${func_name}_DESTDIR}"
+    USE_SOURCE_PERMISSIONS
+  )
+
+# lastly, install a Findfgsllib.cmake file - for allowing cmake to find the build of fgsl (module)
+#  file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/Find${func_name}lib.cmake DESTINATION ${GLOBAL1}/${func_name})
+
+  message(STATUS "Finished setting up the build needed for ${func_name}")
+
+endfunction()
+
+
+
+function(build_fgsl)
+
+  set(func_name "fgsl")
+  set(func_name_cap "FGSL")
+
+  include(ExternalProject)
+
+  if(BUILD_${func_name_cap})
+
+    message(STATUS "User wants to build ${func_name_cap}")
+
+    if (BUILD_ANYWAY)
+
+      message(STATUS "User wants to build ${func_name_cap} even if already installed")
+      now_really_build_fgsl()
+
+    else()
+
+      message(STATUS "Checking to see if we should build ${func_name_cap} - will not build if it is already installed")
+
+        # set ${func_name}_DESTDIR to have install directory by default
+        set(${func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX})
+
+        if(${INSTALL_IN_SEPARATE_DIRS} EQUAL 1)
+          set (${func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX}/${func_name})
+        endif()
+
+  file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/Find${func_name_cap}.cmake  DESTINATION ${${func_name}_DESTDIR})
+
+      find_package(${func_name_cap})
+      if(${func_name}_FOUND)
+        message(STATUS "No need to build ${func_name_cap} - already found")
+      else()
+	message(STATUS "Could not find ${func_name_cap} - building ${func_name} now")
+	now_really_build_fgsl()
+      endif()
+
+    endif()
+
+  else()
+
+    message(STATUS "No need to build ${func_name_cap}")
+
+  endif()
+
+endfunction()
+
+function(now_really_build_fgsl1)
+
+  set(pre_func_name "gsl")
+  set(pre_func_name_cap "GSL")
+  set(func_name "fgsl")
+  set(func_name_cap "FGSL")
+
+  message(STATUS "Now really building ${func_name}")
+
+  message(STATUS "Have reached here - ${func_name}")
+
+  get_property(GLOBAL2 GLOBAL PROPERTY EXTERNAL_BMAD_SOURCE_DIRECTORY)
+  get_property(GLOBAL1 GLOBAL PROPERTY BMAD_EXTERNAL_PACKAGES)
+
+#  message ("Value of global1 is ${GLOBAL1}")
+#  message ("Value of global2 is ${GLOBAL2}")
+#  message ("Value of CMAKE_CURRENT_BINARY_DIR is ${CMAKE_CURRENT_BINARY_DIR}")
+
+  set(${pre_func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX})
+  set(${func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX})
+
+  if(${INSTALL_IN_SEPARATE_DIRS} EQUAL 1)
+    set (${pre_func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX}/${pre_func_name})
+    set (${func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX}/${func_name})
+  endif()
+
+  if(DEFINED CACHE{CMAKE_PRINT_DEBUG})
+    message ("Set ${pre_func_name}_DESTDIR - value has been set to - ${gsl_DESTDIR}")
+    message ("Set ${func_name}_DESTDIR - value has been set to - ${${func_name}_DESTDIR}")
+  endif()
+
+  message(STATUS "In GlobalVariables.cmake - Building the project with a build type of ${CMAKE_BUILD_TYPE}")
+
+  set(NEED_TO_BUILD_GSL 0)
+
+        # set ${func_name}_DESTDIR to have install directory by default
+        set(${pre_func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX})
+
+        if(${INSTALL_IN_SEPARATE_DIRS} EQUAL 1)
+          set (${pre_func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX}/${pre_func_name})
+        endif()
+
+  file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/Find${pre_func_name_cap}.cmake  DESTINATION ${${pre_func_name}_DESTDIR})
+
+
+  find_package(${pre_func_name_cap})
 
   if(GSL_VERSION)
 
@@ -968,7 +1405,7 @@ function(now_really_build_fgsl)
 
     if("${STR1}" VERSION_LESS "${STR2}")
 
-      message(STATUS "Installed version is less than 2.6 - build GSL")
+      message(STATUS "Installed version is less than 2.6 - build ${pre_func_name_cap}")
       set(NEED_TO_BUILD_GSL 1)
  
     else()
@@ -1045,75 +1482,76 @@ function(now_really_build_fgsl)
 
   if(EXISTS ENV{PKG_CONFIG_PATH})
     message ("pkg_config_path does exist")
-    set(fgsl_pc_flags "PKG_CONFIG_PATH=${CMAKE_INSTALL_PREFIX}/gsl/lib/pkgconfig:$ENV{PKG_CONFIG_PATH}")
+    set(${func_name}_pc_flags "PKG_CONFIG_PATH=${CMAKE_INSTALL_PREFIX}/${pre_func_name}/lib/pkgconfig:$ENV{PKG_CONFIG_PATH}")
   else()
     message ("pkg_config_path does not exist")
-    set(fgsl_pc_flags "PKG_CONFIG_PATH=${CMAKE_INSTALL_PREFIX}/gsl/lib/pkgconfig")
+    set(${func_name}_pc_flags "PKG_CONFIG_PATH=${CMAKE_INSTALL_PREFIX}/${pre_func_name}/lib/pkgconfig")
   endif()
 
-  message ("Starting setup of fgsl")
+  message ("Starting setup of ${func_name}")
 
   if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
-    set(fgsl_fcflags "-ffree-line-length-none")
+    set(${func_name}_fcflags "-ffree-line-length-none")
   endif()
 
-  if ("${CMAKE_Fortran_FLAGS}" STREQUAL "" AND DEFINED fgsl_fcflags)
-    set (fgsl_fcflags "FCFLAGS=${fgsl_fcflags}")
-  elseif (NOT "${CMAKE_Fortran_FLAGS}" STREQUAL "" AND NOT DEFINED fgsl_fcflags)
-    set (fgsl_fcflags "FCFLAGS=${CMAKE_Fortran_FLAGS}")
-  elseif (NOT "${CMAKE_Fortran_FLAGS}" STREQUAL "" AND DEFINED fgsl_fcflags)
-    set (fgsl_fcflags "FCFLAGS=${CMAKE_Fortran_FLAGS} ${fgsl_fcflags}")
+  if ("${CMAKE_Fortran_FLAGS}" STREQUAL "" AND DEFINED ${func_name}_fcflags)
+    set (${func_name}_fcflags "FCFLAGS=${${func_name}_fcflags}")
+  elseif (NOT "${CMAKE_Fortran_FLAGS}" STREQUAL "" AND NOT DEFINED ${func_name}_fcflags)
+    set (${func_name}_fcflags "FCFLAGS=${CMAKE_Fortran_FLAGS}")
+  elseif (NOT "${CMAKE_Fortran_FLAGS}" STREQUAL "" AND DEFINED ${func_name}_fcflags)
+    set (${func_name}_fcflags "FCFLAGS=${CMAKE_Fortran_FLAGS} ${${func_name}_fcflags}")
   endif()
 
-  set(fgsl_pc_flags "PKG_CONFIG_PATH=${CMAKE_CURRENT_BINARY_DIR}/gsl-prefix/src/gsl-build:$ENV{PKG_CONFIG_PATH}")
+  set(${func_name}_pc_flags "PKG_CONFIG_PATH=${CMAKE_CURRENT_BINARY_DIR}/${pre_func_name}-prefix/src/${func_name}-build:$ENV{PKG_CONFIG_PATH}")
 
-  message(STATUS "Defining ExternalProject_Add for fgsl")
+  message(STATUS "Defining ExternalProject_Add for ${func_name}")
 
-  message(STATUS "set fgsl_srcdir to ${CMAKE_CURRENT_BINARY_DIR}/fgsl-prefix")
+  message(STATUS "set ${func_name}_srcdir to ${CMAKE_CURRENT_BINARY_DIR}/${func_name}-prefix")
 
-  set(fgsl_srcdir "${CMAKE_CURRENT_BINARY_DIR}/fgsl-prefix")
+  set(${func_name}_srcdir "${CMAKE_CURRENT_BINARY_DIR}/${func_name}-prefix")
 	
   message(STATUS "Execute process autoreconf now!")
 
   message(STATUS " Another test")
 
-  message(STATUS "autoreconf dir is ${CMAKE_CURRENT_BINARY_DIR}/fgsl-prefix")
-  set(fgsl_autoreconfdir "${CMAKE_CURRENT_BINARY_DIR}/fgsl-prefix")
+  message(STATUS "autoreconf dir is ${CMAKE_CURRENT_BINARY_DIR}/${func_name}-prefix")
+  set(${func_name}_autoreconfdir "${CMAKE_CURRENT_BINARY_DIR}/${func_name}-prefix")
 
-  if(EXISTS ${GLOBAL1}/fgsl/configure.ac)
-    message (STATUS "Directory ${GLOBAL1}/fgsl does exist!")
+  if(EXISTS ${GLOBAL1}/${func_name}/configure.ac)
+    message (STATUS "Directory ${GLOBAL1}/${func_name} does exist!")
   else()
-    message (STATUS "Directory ${GLOBAL1}/fgsl does not exist")
+    message (STATUS "Directory ${GLOBAL1}/${func_name} does not exist")
   endif()
   
 # NOTE - JSL - I do not know how to set this to build into the build directory - modifies - that is, puts files into - the external package area.
 
   execute_process(
-    WORKING_DIRECTORY "${GLOBAL1}/fgsl"
+    WORKING_DIRECTORY "${GLOBAL1}/${func_name}"
     COMMAND "autoreconf" "--install"
     RESULT_VARIABLE status
   )
 
-  message(STATUS "finished with autoreconf dir in ${GLOBAL1}/fgsl - status is ${status}")
+  message(STATUS "finished with autoreconf dir in ${GLOBAL1}/${func_name} - status is ${status}")
 
-  message("PKG_CONFIG_PATH: $ENV{PKG_CONFIG_PATH} ${fgsl_pc_flags}") 
+  message("PKG_CONFIG_PATH: /home/cfsd/laster/bmad/external/lib $ENV{PKG_CONFIG_PATH} ${${func_name}_pc_flags}") 
 
-  set(fgsl_build_type "")
+  set(${func_name}_build_type "")
 
   if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
-      set(fgsl_build_type "CFLAGS=-g -O0")
+      set(${func_name}_build_type "CFLAGS=-g -O0")
 #    set(fgsl_build_type "--debug")
   endif()
 
-  ExternalProject_Add(fgsl
-    SOURCE_DIR "${GLOBAL1}/fgsl"
+  ExternalProject_Add(${func_name}
+    SOURCE_DIR "${GLOBAL1}/${func_name}"
     CONFIGURE_COMMAND
-      "${GLOBAL1}/fgsl/configure"
-      "--prefix=${fgsl_DESTDIR}"
+      "${GLOBAL1}/${func_name}/configure"
+      "--prefix=${${func_name}_DESTDIR}"
       "--disable-static"
-      "${fgsl_fcflags}"
-      "${fgsl_pc_flags}"
-      "${fgsl_build_type}"
+#      "--includedir=${${func_name}_DESTDIR}/lib/fortran/modules"
+      "${${func_name}_fcflags}"
+      "${${func_name}_pc_flags}"
+      "${${func_name}_build_type}"
 
     CMAKE_ARGS
       -DBUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
@@ -1127,51 +1565,62 @@ function(now_really_build_fgsl)
     INSTALL_COMMAND make install
   )
 
-  message ("Set fgsl_DESTDIR - value After ExternalProject_Add is now - ${fgsl_DESTDIR}")
+  message ("Set ${func_name}_DESTDIR - value After ExternalProject_Add is now - ${${func_name}_DESTDIR}")
 
   if (${NEED_TO_BUILD_GSL} EQUAL 1)
-    message(STATUS "If we had to build our own gsl - Set up dependency for fgsl - it depends on gsl!")
-    add_dependencies(fgsl gsl)
+    message(STATUS "If we had to build our own ${pre_func_name} - Set up dependency for ${func_name} - it depends on ${pre_func_name}!")
+    add_dependencies(${func_name} ${pre_func_name})
   endif()
 
   install(
     DIRECTORY
-    COMPONENT fgsl
-    DESTINATION "${fgsl_DESTDIR}"
+    COMPONENT ${func_name}
+    DESTINATION "${${func_name}_DESTDIR}"
     USE_SOURCE_PERMISSIONS
   )
 
 # lastly, install a Findfgsllib.cmake file - for allowing cmake to find the build of fgsl (module)
 
-  file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/Findfgsllib.cmake DESTINATION ${GLOBAL1}/fgsl)
+#  file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/Find${func_name_cap}.cmake  DESTINATION ${${func_name}_DESTDIR})
 
-  message(STATUS "Finished setting up the build needed for fgsl")
+  message(STATUS "Finished setting up the build needed for ${func_name} - copied file to ${${func_name}_DESTDIR}")
 
 endfunction()
 
 
 function(build_lapack95)
 
+  set (func_name lapack95)
+  set (func_name_cap LAPACK95)
+
   include(ExternalProject)
 
-  if(BUILD_LAPACK95)
+  if(BUILD_${func_name_cap})
 
-    message(STATUS "User wants to build LAPACK95")
+    message(STATUS "User wants to build ${func_name_cap}")
 
     if (BUILD_ANYWAY)
 
-      message(STATUS "User wants to build LAPACK95 even if already installed")
+      message(STATUS "User wants to build ${func_name_cap} even if already installed")
       now_really_build_lapack95()
 
     else()
 
-      message(STATUS "Checking to see if we should build LAPACK95 - will not build if it is already installed")
+      message(STATUS "Checking to see if we should build ${func_name_cap} - will not build if it is already installed")
 
-      find_package(LAPACK95)
-      if(LAPACK95_FOUND)
-        message(STATUS "No need to build LAPACK95 - already found")
+        set(${func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX})
+
+        if(${INSTALL_IN_SEPARATE_DIRS} EQUAL 1)
+          set (${func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX}/${func_name})
+        endif()
+
+	file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/Find${func_name_cap}.cmake DESTINATION ${${func_name}_DESTDIR})
+
+      find_package(${func_name_cap})
+      if(${func_name_cap}_FOUND)
+        message(STATUS "No need to build ${func_name_cap} - already found")
       else()
-	message(STATUS "Could not find LAPACK95 - building lapack95 now")
+	message(STATUS "Could not find ${func_name_cap} - building lapack95 now")
 	now_really_build_lapack95()
       endif()
 
@@ -1179,7 +1628,7 @@ function(build_lapack95)
 
   else()
 
-    message(STATUS "No need to build LAPACK95")
+    message(STATUS "No need to build ${func_name_cap}")
 
   endif()
 
@@ -1188,29 +1637,40 @@ endfunction()
 function(now_really_build_lapack95)
 
   set(func_name "lapack95")
+  set(func_name_cap "LAPACK95")
 
   message(STATUS "Now really building ${func_name}")
 
   get_property(GLOBAL2 GLOBAL PROPERTY EXTERNAL_BMAD_SOURCE_DIRECTORY)
   get_property(GLOBAL1 GLOBAL PROPERTY BMAD_EXTERNAL_PACKAGES)
 
-  MESSAGE (STATUS "For ${FUNC_NAME} - will place  ${CMAKE_ROLLOUT_CMAKE_FILES}/${FUNC_NAME}_CMakeLists.txt file into ...${GLOBAL1}/${func_name} and then rename it to ${GLOBAL1}/${func_name}/CMakeLists.txt")
+  MESSAGE (STATUS "For ${func_name} - will place  ${CMAKE_ROLLOUT_CMAKE_FILES}/${func_name_cap}_CMakeLists.txt file into ... ${GLOBAL1}/${func_name} and then rename it to ${GLOBAL1}/${func_name_cap}_CMakeLists.txt")
 
-  file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/LAPACK95_CMakeLists.txt DESTINATION ${GLOBAL1}/${func_name})
-  file(RENAME ${GLOBAL1}/${func_name}/LAPACK95_CMakeLists.txt ${GLOBAL1}/${func_name}/CMakeLists.txt)
+  MESSAGE (STATUS "Values: rename -  ${CMAKE_ROLLOUT_CMAKE_FILES}/${func_name_cap}_CMakeLists.txt   -  ${GLOBAL1}/${func_name}/CMakeLists.txt")
+#  file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/${func_name_cap}_CMakeLists.txt DESTINATION ${${func_name}_DESTDIR})
+  file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/${func_name_cap}_CMakeLists.txt DESTINATION ${GLOBAL1}/${func_name})
+  file(RENAME ${GLOBAL1}/${func_name}/${func_name_cap}_CMakeLists.txt ${GLOBAL1}/${func_name_cap}_CMakeLists.txt)
+
+  set(${func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX})
+
+  if(${INSTALL_IN_SEPARATE_DIRS} EQUAL 1)
+    set (${func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX}/${func_name})
+  endif()
+
+  file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/Find${func_name_cap}.cmake DESTINATION ${${func_name}_DESTDIR})
 
   find_package(LAPACK)
   if (NOT LAPACK_FOUND)
-    message(FATAL_ERROR "BUILDING ${FUNC_NAME} - LAPACK library not found")
+    message(STATUS "BUILDING ${func_name} - LAPACK library not found")
   else()
-    message(STATUS "BUILDING ${FUNC_NAME} - FOUND LAPACK library")
+    message(STATUS "BUILDING ${func_name} - FOUND LAPACK library")
   endif()
     
   # set lapack_DESTDIR to have install directory by default
   set(${func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX})
 
   if(${INSTALL_IN_SEPARATE_DIRS} EQUAL 1)
-    set (lapack_DESTDIR ${CMAKE_INSTALL_PREFIX}/${func_name})
+    set (${func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX}/${func_name})
   endif()
 
   if(DEFINED CACHE{CMAKE_PRINT_DEBUG})
@@ -1236,8 +1696,6 @@ function(now_really_build_lapack95)
     INSTALL_COMMAND make install
   )
 	
-  message(STATUS "Finished setting up the build needed for ${func_name}")
-
   install(
     DIRECTORY
     COMPONENT ${func_name}
@@ -1245,31 +1703,46 @@ function(now_really_build_lapack95)
     USE_SOURCE_PERMISSIONS
   )
 
+#  file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/Find${func_name_cap}.cmake DESTINATION ${${func_name}_DESTDIR})
+
+  message(STATUS "Finished setting up the build needed for ${func_name}")
+
 endfunction()
 
 
 function(build_xraylib)
 
+  set(func_name "xraylib")
+  set(func_name_cap "XRAYLIB")
+
   include(ExternalProject)
 
-  if(BUILD_XRAYLIB)
+  if(BUILD_${func_name_cap})
 
-    message(STATUS "User wants to build XRAYLIB")
+    message(STATUS "User wants to build ${func_name_cap}")
 
     if (BUILD_ANYWAY)
 
-      message(STATUS "User wants to build XRAYLIB even if already installed")
+      message(STATUS "User wants to build ${func_name_cap} even if already installed")
       now_really_build_xraylib()
 
     else()
 
-      message(STATUS "Checking to see if we should build XRAYLIB - will not build if it is already installed")
+      message(STATUS "Checking to see if we should build ${func_name_cap} - will not build if it is already installed")
 
-      find_package(XRAYLIB)
-      if(XRAYLIB_FOUND)
-        message(STATUS "No need to build XRAYLIB - already found")
+        set(${func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX})
+
+        if(${INSTALL_IN_SEPARATE_DIRS} EQUAL 1)
+          set (${func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX}/${func_name})
+        endif()
+
+  file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/Find${func_name_cap}.cmake  DESTINATION ${${func_name}_DESTDIR})
+
+      find_package(${func_name_cap})
+      if(${func_name}_FOUND)
+        message(STATUS "No need to build ${func_name_cap} - already found")
       else()
-	message(STATUS "Could not find XRAYLIB - building xraylib now")
+	message(STATUS "Could not find ${func_name_cap} - building ${func_name} now")
 	now_really_build_xraylib()
       endif()
 
@@ -1277,7 +1750,7 @@ function(build_xraylib)
 
   else()
 
-    message(STATUS "No need to build XRAYLIB")
+    message(STATUS "No need to build ${func_name_cap}")
 
   endif()
 
@@ -1286,6 +1759,7 @@ endfunction()
 function(now_really_build_xraylib)
 
   set(func_name "xraylib")
+  set(func_name_cap "XRAYLIB")
 
   message(STATUS "Now really building ${func_name}")
 
@@ -1371,52 +1845,39 @@ function(now_really_build_xraylib)
   )
 
 # lastly, install a Find${func_name}.cmake file - for allowing cmake to find the build of ${func_name} (module)
-
-  file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/Find${func_name}.cmake DESTINATION ${GLOBAL1}/${func_name})
+#  file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/Find${func_name}.cmake  DESTINATION ${${func_name}_DESTDIR})
 
   message(STATUS "Finished setting up the build needed for ${func_name}")
 
 endfunction()
 
-#function(should_build_all)
-#  message(STATUS "CHECK IF BUILD_ALL IS SET OR IF USER SPECIFIED ALL PACKAGES")
-#  
-#  set (ONE_SET 0)
-#  message(STATUS "BUILD_ALL VALUE IS ${BUILD_ALL}"
-#  message(STATUS "BUILD_ALL VALUE IS ${BUILD_ALL}"
-#  
-#  
-#  message(STATUS "VALUE OF ONE_SET IS ${ONE_SET}"
-#endfunction()
-
-
 function(should_build_package package should_build)
 
-	message(STATUS "Checking build for package ${package}")
-	message(STATUS "status of build_all is ${BUILD_ALL}")
+  message(STATUS "Checking build for package ${package}")
+  message(STATUS "status of build_all is ${BUILD_ALL}")
 #	set (fgsl "FGSL")
-	set (package_name_to_use "not set")
-	package_map(${package} package_name_to_use)
-	message(STATUS "3. VALUE OF package_name_to_use after calling package_map is now ${package_name_to_use}")
-	message(STATUS "VALUE OF BUILD_${package_name_to_use} is ${BUILD_${package_name_to_use}}")
-	message(STATUS "VALUE OF BUILD_ALL is ${BUILD_ALL}")
+  set (package_name_to_use "not set")
+  package_map(${package} package_name_to_use)
+  message(STATUS "3. VALUE OF package_name_to_use after calling package_map is now ${package_name_to_use}")
+  mmessage(STATUS "VALUE OF BUILD_${package_name_to_use} is ${BUILD_${package_name_to_use}}")
+  message(STATUS "VALUE OF BUILD_ALL is ${BUILD_ALL}")
 
-	if (${BUILD_ALL} STREQUAL "ON")
-		message(STATUS "Build all is ON!")
- 		set(${should_build} "YES" PARENT_SCOPE)
+  if (${BUILD_ALL} STREQUAL "ON")
+    message(STATUS "Build all is ON!")
+    set(${should_build} "YES" PARENT_SCOPE)
 		
-	else()
-		message(STATUS - "BUILD_ALL IS NOT ON - package value is ${BUILD_${package_name_to_use}}")
-		if (${BUILD_${package_name_to_use}} STREQUAL "ON")
-			message(STATUS "Build for BUILD_${package_name_to_use} is ON!")
-			set(${should_build} "YES" PARENT_SCOPE)
+ else()
+    message(STATUS - "BUILD_ALL IS NOT ON - package value is ${BUILD_${package_name_to_use}}")
+    if (${BUILD_${package_name_to_use}} STREQUAL "ON")
+      message(STATUS "Build for BUILD_${package_name_to_use} is ON!")
+      set(${should_build} "YES" PARENT_SCOPE)
 #			set(${BUILD_AT_LEAST_ONE} 1 PARENT_SCOPE)
-			message(STATUS "Setting value of BUILD_AT_LEAST_ONE to be 1!")
-			set_property(GLOBAL PROPERTY BUILD_AT_LEAST_ONE 1)
-		else()		
-			set(${should_build} "NO" PARENT_SCOPE)
-		endif()
-	endif()
+      message(STATUS "Setting value of BUILD_AT_LEAST_ONE to be 1!")
+      set_property(GLOBAL PROPERTY BUILD_AT_LEAST_ONE 1)
+    else()		
+      set(${should_build} "NO" PARENT_SCOPE)
+    endif()
+  endif()
 #	message(STATUS "Value of should_build in GlobalVariables.cmake file should_build function is ${should_build}")
 endfunction()
 
@@ -1464,10 +1925,9 @@ endif()
 	else()
 		message(FATAL_ERROR "(package_map) Package name mapping not found - aborting - ${package}")
 	endif()
-if(DEFINED CACHE{CMAKE_PRINT_DEBUG})
-	message(STATUS "(package_map) Value of package - mapped name is ${package} - ${local_mapped_name}")
-endif()
-
+        if(DEFINED CACHE{CMAKE_PRINT_DEBUG})
+	  message(STATUS "(package_map) Value of package - mapped name is ${package} - ${local_mapped_name}")
+        endif()
 endfunction()
 
 function(set_build_flags)

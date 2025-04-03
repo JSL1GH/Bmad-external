@@ -86,7 +86,8 @@
 #set(CMAKE_INSTALL_PREFIX ${THE_PARENT_PATH}/${CMAKE_INSTALL_EXTERNAL_PREFIX})
 #set(CMAKE_INSTALL_PREFIX ${THE_PARENT_PATH})
 
-  if(DEFINED CACHE{CMAKE_PRINT_DEBUG})
+#  if(DEFINED CACHE{CMAKE_PRINT_DEBUG})
+  if(DEFINED CACHE{CMAKE_INSTALL_PREFIX})
     message (STATUS "User has decided to set '${CMAKE_INSTALL_PREFIX}' as the installation area")
   endif()
 
@@ -119,15 +120,17 @@
 	  message (STATUS "Directory path '${CMAKE_INSTALL_PREFIX}' already exists - user supplied force option! ('-force') - continuing and building into it")
 	else()
           message (FATAL_ERROR "Directory path '${CMAKE_INSTALL_PREFIX}' already exists - please modify or supply a build flag to override - in order continue installation ('-DCUSER_FORCE=true)...cancel'")
-#       message (FATAL_ERROR "Directory path")
-#       message(FATAL_ERROR "Missing required file: important_file.txt")
-#    cmake_exit(-1) # not available in our version of cmake (3.25 or later)
+#         message (FATAL_ERROR "Directory path")
+#         message(FATAL_ERROR "Missing required file: important_file.txt")
+#         cmake_exit(-1) # not available in our version of cmake (3.25 or later)
 
         endif()
       endif()
-   else()
+    else()
       message("User has set a value of {CMAKE_INSTALL_PREFIX}")
-   endif()
+    endif()
+  else()   
+    message (STATUS "No value given for CMAKE_INSTALL_PREFIX - defaulting to $ENV{HOME}/bmad/external")
   endif()
 
 #if(DEFINED CACHE{CMAKE_PRINT_DEBUG})
@@ -157,7 +160,11 @@
 #JSL - COMMENTING OUT ON 1/14/2025 - does this help find it?
 #set_property (GLOBAL PROPERTY LIST_OF_PATHS ${CMAKE_INSTALL_PREFIX})
 
-  set( LIST_OF_PATHS ${CMAKE_PREFIX_PATH})
+#jsl - maybe needs to be CMAKE_MODULE_PATH?
+#  set( LIST_OF_PATHS ${CMAKE_PREFIX_PATH})
+#set(LIST_OF_PATHS ${CMAKE_MODULE_PATH})
+set(LIST_OF_PATHS ${CMAKE_PREFIX_PATH})
+
 #set_property (GLOBAL PROPERTY LIST_OF_PATHS ${CMAKE_PREFIX_PATH})
 
 # hdf5 is supported by h5cc - and it has its own special path (though maybe not when I place in .bmad_external directory)
@@ -178,7 +185,8 @@
   set(CMAKE_INSTALL_ANYWAY ${BUILD_ANYWAY})
 
   if(DEFINED CACHE{CMAKE_PRINT_DEBUG})
-    message(STATUS "User has set a value for BUILD_ANYWAY to be ${CMAKE_INSTALL_ANYWAY} - this means packages will be built - no matter what")
+    message(STATUS "User has set a value for BUILD_ANYWAY to be ${CMAKE_INSTALL_ANYWAY}")
+    message(STATUS "If value is ON - packages will be built - no matter what")
   endif()
 #return()
 
@@ -214,16 +222,21 @@ if(DEFINED CACHE{CMAKE_PRINT_DEBUG})
       message(STATUS "Checking BUILD_${package_name}")
 endif()
       if (NOT BUILD_${package_name})
+if(DEFINED CACHE{CMAKE_PRINT_DEBUG})
+        message(STATUS "No need to build ${PACKAGE} ${package_name}")
+endif()
         continue()
       else()
-        message(STATUS "Now building ${PACKAGE} ${package_name}")
+        message(STATUS "We need to build ${PACKAGE} ${package_name}")
       endif()
 
       set (VAR1 ${PACKAGE})
 
       if (${PACKAGE} STREQUAL "h5cc")
-        message(STATUS "Package is h5cc - checking if we have hdf5 instead")
+if(DEFINED CACHE{CMAKE_PRINT_DEBUG})
+        message(STATUS "Package is h5cc - we will check for hdf5 instead")
 #			install_package(${VAR1})
+endif()
         set (VAR1 "hdf5")
       endif()
 		
@@ -233,7 +246,12 @@ endif()
       if (${VAR1} STREQUAL "hdf5")
 	#special test for hdf5
 	set (PACKAGE_TEST_NAME "HDF5")
-	find_package(HDF5 COMPONENTS Fortran)
+	# if BUILD_ANYWAY, we do not test for find_package!
+	if (${BUILD_ANYWAY} STREQUAL "OFF")
+          #executing the find_package step yields this warning message
+          #f951: Warning: ‘-Werror=’ argument ‘-Werror=format-security’ is not valid for Fortran
+	  find_package(HDF5 COMPONENTS Fortran)
+	endif()
       elseif (${VAR1} STREQUAL "xraylib")
       	#special test for hdf5
 	message (STATUS "Looking for package 'xraylib' using find_package in paths ${LIST_OF_PATHS}")
@@ -263,7 +281,17 @@ endif()
 		else()
 #			find_package(${VAR1} PATHS /Users/jlaster/bmad/bmad-ecosystem/production /Users/jlaster/bmad/bmad-ecosystem/hdf5/production /Users/jlaster/.bmad_external /Users/jlaster/.bmad_external/lib /Users/jlaster/.bmad_external/bin /Users/jlaster/.bmad_external/hdf5 /Users/jlaster/.bmad_external/hdf5/hdf5 /Users/jlaster/.bmad_external/bin/config CONFIG)
 			message (STATUS "Looking for package '${VAR1}' using find_package in paths ${LIST_OF_PATHS}")
-			find_package(${VAR1} PATHS ${LIST_OF_PATHS} CONFIG)
+#			find_package(${VAR1} PATHS ${LIST_OF_PATHS} CONFIG)
+#			find_package(${VAR1} PATHS ${LIST_OF_PATHS} MODULE)
+
+#			find_package(${VAR1} PATHS ${LIST_OF_PATHS} CONFIG)
+#                       we do not want environment for find_package to be set if build_anyway is on, so we skip it!
+			if (${BUILD_ANYWAY} STREQUAL "OFF")
+			  message(STATUS "BUILD_ANYWAY IS ${BUILD_ANYWAY} - deciding if looking for package")
+			  find_package(${VAR1} PATHS ${LIST_OF_PATHS} CONFIG)
+			endif()
+#			find_package(${VAR1} PATHS CONFIG)
+
 		endif()
 
 		set (NEED_TO_INSTALL_PACKAGE 0)
@@ -271,7 +299,7 @@ endif()
 
 		if ( ${PACKAGE_TEST_NAME}_FOUND )
 			message(STATUS "${VAR1} was found - continuing")
-			if (${CMAKE_INSTALL_ANYWAY})
+			if (${CMAKE_INSTALL_ANYWAY} STREQUAL "ON")
 			   message(STATUS "Installing ${VAR1} anyway - that is, we found the package, but laying down code to build anyway")
 			   set(NEED_TO_INSTALL_PACKAGE 1)
 			endif()
@@ -351,25 +379,6 @@ else()
 	message(STATUS "in progress")
 #	message(STATUS "invoked from outer (ensuring external packages are available)")
 #
-##list(APPEND EXT_LIBS boost nextboost)
-#
-#message(STATUS "value of libs is ${EXT_LIBS}")
-#
-##set(EXT_LIBSS "")
-#
-#foreach( PACKAGE IN ITEMS ${EXT_LIBS} )
-##foreach(PACKAGE boost nextboost)
-#	set (VAR1 ${PACKAGE})
-#	message(STATUS "now testing for ${VAR1}")
-#	find_package(${PACKAGE} CONFIG)
-#	if ( ${PACKAGE}_FOUND )
-#		message(STATUS "${PACKAGE} was found - continuing")
-#	else()
-#	    set_property(GLOBAL PROPERTY EXTERNALTEST PROBLEM)
-#	    return()
-##		message(FATAL_ERROR "${PACKAGE} not everything is installed - quitting")
-#	endif()
-#endforeach()
 
 return()
 

@@ -34,23 +34,25 @@
     message (STATUS "SETTING EXTERNAL_BMAD_DIRECTORY to value of ${BUILD_DIR}")
   endif()
 
-  set (APPEND_BUILD_TYPE "production")
-  # now add on to the CMAKE_INSTALL_PREFIX the BUILD_TYPE
-  if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
-    set (APPEND_BUILD_TYPE "debug")
-  endif()
+# Scott suggests user can add this to their INSTALL_PREFIX
+#  set (APPEND_BUILD_TYPE "production")
+#  # now add on to the CMAKE_INSTALL_PREFIX the BUILD_TYPE
+#  if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+#    set (APPEND_BUILD_TYPE "debug")
+#  endif()
 
 
   if (EXISTS "${CMAKE_MODULE_PATH}")
 #  if (CMAKE_MODULE_PATH)
-     message(FAILURE "HERE")
-    set (CMAKE_MODULE_PATH ${CMAKE_INSTALL_PREFIX} ${CMAKE_INSTALL_PREFIX}/${APPEND_BUILD_TYPE} ${CMAKE_MODULE_PATH} ${CMAKE_MODULE_PATH}/${APPEND_BUILD_TYPE})
+#     set (CMAKE_MODULE_PATH ${CMAKE_INSTALL_PREFIX} ${CMAKE_INSTALL_PREFIX}/${APPEND_BUILD_TYPE} ${CMAKE_MODULE_PATH} ${CMAKE_MODULE_PATH}/${APPEND_BUILD_TYPE})
+     set (CMAKE_MODULE_PATH ${CMAKE_INSTALL_PREFIX} ${CMAKE_INSTALL_PREFIX} ${CMAKE_MODULE_PATH})
   else()
-     message(FAILURE "HERE2")
-    set (CMAKE_MODULE_PATH ${CMAKE_INSTALL_PREFIX} ${CMAKE_INSTALL_PREFIX}/${APPEND_BUILD_TYPE})
+#     message(FAILURE "HERE2")
+#     set (CMAKE_MODULE_PATH ${CMAKE_INSTALL_PREFIX} ${CMAKE_INSTALL_PREFIX}/${APPEND_BUILD_TYPE})
+     set (CMAKE_MODULE_PATH ${CMAKE_INSTALL_PREFIX})
   endif()
 
-  set (CMAKE_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX}/${APPEND_BUILD_TYPE})
+#  set (CMAKE_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX}/${APPEND_BUILD_TYPE})
 
   if(DEFINED CACHE{CMAKE_PRINT_DEBUG})
     message (STATUS "2. CMAKE INSTALL DIRECTORY IS '${CMAKE_INSTALL_PREFIX}'")
@@ -105,37 +107,6 @@
     else()
       message(STATUS "Did not find the package ${GLOBAL2}/${package_name} - This is a problem.")
     endif()
-  endfunction()
-
-  #define a function
-  function(install_the_external_package1 path package_name)
-    message(STATUS "Now in 'install_the_external...' - A function with argument ${package_name}")
-
-#jsl - do we need this anymore?
-#    ensure_directory_exists(${path} ${package_name} "no")
-    get_property(GLOBAL2 GLOBAL PROPERTY EXTERNAL_BMAD_SOURCE_DIRECTORY)
-# does it have anything in it?
-# if no, copy the tarfile to this location and untar it
-
-    message(STATUS "2. Going to look for ${GLOBAL2}/${package_name}.tar.gz")
-    if (EXISTS ${GLOBAL2}/${package_name}.tar.gz)
-      message(STATUS "Found the package ${GLOBAL2}/${package_name}.tar.gz file") # found package_name
-      message(STATUS "Now will copy it to ${GLOBAL1}/${package_name}/${package_name}.tar.gz")
-      configure_file(${GLOBAL2}/${package_name}.tar.gz ${GLOBAL1}/${package_name}/${package_name}.tar.gz COPYONLY)
-      if (EXISTS ${GLOBAL1}/${package_name}/${package_name}.tar.gz)
-        message(STATUS "Now have the copied file where we want it - let's build it!")
-	build_package(${GLOBAL1}/${package_name} ${package_name})
-      else()
-	message(FATAL_ERROR, "For some reason, could not copy file into place - ${GLOBAL1}/${package_name}/${package_name}.tar.gz - for now, I think better to just give up at this point")
-      endif()
-    else()
-# did not exist
-      message(STATUS "Looked but did not find the package ${package_name}.tar.gz") # found package_name
-      message(FATAL_ERROR, "I think better to just give up at this point")
-#	    configure_file(${GLOBAL2}/${package_name}.tar.gz ${GLOBAL1}/${package_name}/${package_name}.tar.gz COPYONLY)
-    endif()
-#	file()
-#	install_the_external_package(${package_name})
   endfunction()
 
 
@@ -294,8 +265,9 @@
       set (${func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX}/${func_name})
     endif()
 
+if (OWN_FIND_ALL_PACKAGE)
         file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/Find${func_name_cap}.cmake DESTINATION ${${func_name}_DESTDIR})
-
+endif()
 
 	find_package(${func_name_cap} COMPONENTS Fortran)
         if (${func_name}_FOUND)
@@ -398,7 +370,9 @@
       set(${func_name}_build_type "--enable-build-mode=debug")
     endif()
 
+if (OWN_FIND_ALL_PACKAGE)
     file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/Find${func_name_cap}.cmake DESTINATION ${${func_name}_DESTDIR})
+endif()
 
     ExternalProject_Add(${func_name}
       SOURCE_DIR "${GLOBAL1}/${func_name}"
@@ -419,7 +393,8 @@
 # THIS SWITCH DECIDES if .a or .so
 	"--disable-static"
 	"--disable-tests"
-	"--includedir=${${func_name}_DESTDIR}/include/${func_name}"
+#Scott says don't specify where include files ago
+#	"--includedir=${${func_name}_DESTDIR}/include/${func_name}"
 # THIS did not work!! - directory doesn't exist - guessing I have to make it on my own if this is desired!
 #	"--with-fmoddir=${${func_name}_DESTDIR}/lib/fortran/modules/${func_name}"
 
@@ -442,6 +417,7 @@
 #    file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/Find${func_name_cap}.cmake DESTINATION ${${func_name}_DESTDIR})
 #
 #    message(STATUS "Copy - From - ${CMAKE_ROLLOUT_CMAKE_FILES}/Find${func_name_cap}.cmake to ${${func_name}_DESTDIR}")
+
     message(STATUS "Finished setting up the build needed for ${func_name}")
 
   endfunction()
@@ -479,7 +455,9 @@
           set (${func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX}/${func_name})
         endif()
 
+if (OWN_FIND_ALL_PACKAGE)
     file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/Find${func_name_cap}.cmake DESTINATION ${${func_name}_DESTDIR})
+endif()
 
 
           find_package(${func_name_cap})
@@ -517,7 +495,9 @@
 	set (${func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX}/${func_name})
     endif()
 
+if (OWN_FIND_ALL_PACKAGE)
     file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/Find${func_name_cap}.cmake DESTINATION ${${func_name}_DESTDIR})
+endif()
 
     if(DEFINED CACHE{CMAKE_PRINT_DEBUG})
         message ("Set ${func_name}_DESTDIR - value has been set to - ${${func_name}_DESTDIR}")
@@ -550,13 +530,16 @@
 #		-DCMAKE_INSTALL_LIBDIR=${${func_name}_DESTDIR}/lib
 	#jsl - this from david - but I am adding library name!
 		-DCMAKE_INSTALL_LIBDIR=${${func_name}_DESTDIR}/lib
-                -DCMAKE_INSTALL_INCLUDEDIR=${${func_name}_DESTDIR}/include/${func_name}
-#		-DCMAKE_INSTALL_INCDIR=${${func_name}_DESTDIR}/lib/lapack
+#Scott says don't specify where include files ago
+#                -DCMAKE_INSTALL_INCLUDEDIR=${${func_name}_DESTDIR}/include/${func_name}
+#this was not used		-DCMAKE_INSTALL_INCDIR=${${func_name}_DESTDIR}/lib/lapack
 
 	
 #jsl - NOT SURE IF SHOULD BE SENT TO ./lib/fortran/modules/plplot or ./lib/fortran/modules
 
-       		-DCMAKE_Fortran_MODULE_DIRECTORY=${${func_name}_DESTDIR}/lib/fortran/modules/${func_name}
+#Scott suggests these should go to the include directory
+#       		-DCMAKE_Fortran_MODULE_DIRECTORY=${${func_name}_DESTDIR}/lib/fortran/modules/${func_name}
+-DCMAKE_Fortran_MODULE_DIRECTORY=${${func_name}_DESTDIR}/include
 
 #		-DCMAKE_Fortran_MODULE_DIRECTORY=${${func_name}_DESTDIR}/lib/fortran/modules
 
@@ -628,7 +611,9 @@
           set (${func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX}/${func_name})
         endif()
 
+if (OWN_FINDPACKAGE)
     file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/Find${func_name_cap}.cmake DESTINATION ${${func_name}_DESTDIR})
+endif()
 
         find_package(${func_name_cap})
 
@@ -676,7 +661,9 @@
       set (${func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX}/${func_name})
     endif()
 
+if (OWN_FINDPACKAGE)
     file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/Find${func_name_cap}.cmake DESTINATION ${${func_name}_DESTDIR})
+endif()
 
     if(DEFINED CACHE{CMAKE_PRINT_DEBUG})
       message ("Set ${func_name}_DESTDIR - value has been set to - ${${func_name}_DESTDIR}")
@@ -695,7 +682,9 @@
         -DDEFAULT_NO_BINDINGS=ON
         -DENABLE_fortran:BOOL=ON
         -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-        -DFORTRAN_MOD_DIR=${${func_name}_DESTDIR}/lib/fortran/modules
+#Scott suggests these should go to the include directory
+#        -DFORTRAN_MOD_DIR=${${func_name}_DESTDIR}/lib/fortran/modules
+        -DFORTRAN_MOD_DIR=${${func_name}_DESTDIR}/include
 
       CMAKE_CACHE_ARGS
         -DCMAKE_C_COMPILER:STRING=${CMAKE_C_COMPILER}
@@ -744,6 +733,20 @@
 #    file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/FindPLPLOT.cmake DESTINATION ${GLOBAL1}/${func_name})
 #    file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/Find${func_name_cap}.cmake DESTINATION ${${func_name}_DESTDIR})
 #
+
+
+# do I need to delete the original files in the ${func_name} directory? - for now, leaving them!
+  add_custom_command(TARGET ${func_name} POST_BUILD
+#     message(STATUS "Copying xraylib include files now after the build is complete")
+     COMMENT "Copying ${func_name} include files now after the build is complete"
+#      COMMAND echo hello
+      COMMAND ${CMAKE_COMMAND} -E copy
+	"${CMAKE_INSTALL_PREFIX}/include/${func_name}/*"
+	"${CMAKE_INSTALL_PREFIX}/include"
+#      COMMENT "MyComment"
+  )
+
+
     message(STATUS "Finished setting up the build needed for ${func_name}")
 
   endfunction()
@@ -776,7 +779,9 @@
           set (${func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX}/${func_name})
         endif()
 
+if (OWN_FINDPACKAGE)
 	file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/Find${func_name_cap}.cmake DESTINATION ${${func_name}_DESTDIR})
+endif()
 
         find_package(${func_name_cap})
         if(${func_name}_FOUND)
@@ -817,7 +822,9 @@
 
 #    set(${func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX}/${func_name})
 
+if (OWN_FINDPACKAGE)
 	file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/Find${func_name_cap}.cmake DESTINATION ${${func_name}_DESTDIR})
+endif()
 
     if(DEFINED CACHE{CMAKE_PRINT_DEBUG})
       message ("Set ${func_name}_DESTDIR - value has been set to - ${${func_name}_DESTDIR}")
@@ -837,7 +844,8 @@
         "--prefix=${${func_name}_DESTDIR}"
         # need this otherwise end up with lapack and blas ${func_name}3 in /lib64 and not a shared object!!
 	"--enable-shared"
-	"--includedir=${${func_name}_DESTDIR}/include/${func_name}"
+#Scott says don't specify where include files ago
+#	"--includedir=${${func_name}_DESTDIR}/include/${func_name}"
 	"${${func_name}_build_type}"
 	
 
@@ -901,8 +909,9 @@
         endif()
 
 #  file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/Find${func_name}lib.cmake  DESTINATION ${${func_name}_DESTDIR})
+if (OWN_FINDPACKAGE)
   file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/Find${func_name}.cmake  DESTINATION ${${func_name}_DESTDIR})
-
+endif()
         find_package(${func_name_cap})
         if(${func_name}_FOUND)
           message(STATUS "No need to build ${func_name_cap} - already found")
@@ -939,7 +948,9 @@
       set (${func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX}/${func_name})
     endif()
 
+if (OWN_FINDPACKAGE)
   file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/Find${func_name}.cmake  DESTINATION ${${func_name}_DESTDIR})
+endif()
 
     if(DEFINED CACHE{CMAKE_PRINT_DEBUG})
       message ("Set ${func_name}_DESTDIR - value has been set to - ${${func_name}_DESTDIR}")
@@ -1033,65 +1044,12 @@
 
   endfunction()
 
+  function(now_really_build_fgsl)
 
-  function(build_fgsl1)
-
-    include(ExternalProject)
-
-    if(BUILD_FGSL)
-
-      message(STATUS "User wants to build FGSL")
-
-      if (BUILD_ANYWAY)
-
-        message(STATUS "User wants to build FGSL even if already installed")
-        now_really_build_fgsl()
-
-    else()
-
-      message(STATUS "Checking to see if we should build FGSL - will not build if it is already installed")
-
-
-        # set ${func_name}_DESTDIR to have install directory by default
-        set(${func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX})
-
-        if(${INSTALL_IN_SEPARATE_DIRS} EQUAL 1)
-          set (${func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX}/${func_name})
-        endif()
-
-      file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/Find${func_name}.cmake DESTINATION ${GLOBAL1}/${func_name})
-
-      find_package(FGSL)
-#      if(${func_name}_FOUND)
-#      find_package(${func_name_cap})
-
-#      if(${func_name}_FOUND)
-
-#      if(fgsl_FOUND)
-      message (STATUS "value of JSL_FOUND is ${JSL_FOUND}")
-      if(JSL_FOUND)
-        message(STATUS "No need to build FGSL - already found")
-      else()
-#	message(STATUS "Could not find FGSL - building fgsl now")
-	now_really_build_fgsl()
-      endif()
-
-    endif()
-
-  else()
-
-    message(STATUS "No need to build FGSL")
-
-  endif()
-
-endfunction()
-
-function(now_really_build_fgsl)
-
-  set(pre_func_name "gsl")
-  set(pre_func_name_cap "GSL")
-  set(func_name "fgsl")
-  set(func_name_cap "FGSL")
+    set(pre_func_name "gsl")
+    set(pre_func_name_cap "GSL")
+    set(func_name "fgsl")
+    set(func_name_cap "FGSL")
 
   message(STATUS "Now really building ${func_name}")
 
@@ -1128,8 +1086,12 @@ function(now_really_build_fgsl)
           set (${pre_func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX}/${pre_func_name})
         endif()
 
+if (OWN_FIND_ALL_PACKAGE)
   file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/Find${pre_func_name_cap}.cmake  DESTINATION ${${pre_func_name}_DESTDIR})
+endif()
+if (OWN_FINDPACKAGE)
   file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/Find${func_name_cap}.cmake DESTINATION ${GLOBAL1}/${${func_name}_DESTDIR})
+endif()
 
   find_package(${pre_func_name_cap})
 
@@ -1203,6 +1165,18 @@ function(now_really_build_fgsl)
       DESTINATION "${${pre_func_name}_DESTDIR}"
       USE_SOURCE_PERMISSIONS
     )
+
+
+# do I need to delete the original files in the ${func_name} directory? - for now, leaving them!
+  add_custom_command(TARGET ${pre_func_name} POST_BUILD
+#     message(STATUS "Copying xraylib include files now after the build is complete")
+     COMMENT "Copying ${pre_func_name} include files now after the build is complete"
+#      COMMAND echo hello
+      COMMAND ${CMAKE_COMMAND} -E copy
+	"${CMAKE_INSTALL_PREFIX}/include/${pre_func_name}/*"
+	"${CMAKE_INSTALL_PREFIX}/include"
+#      COMMENT "MyComment"
+  )
 
     message(STATUS "Finished the NEED TO BUILD section for ${pre_func_name}")
 
@@ -1349,7 +1323,9 @@ function(build_fgsl)
           set (${func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX}/${func_name})
         endif()
 
+if (OWN_FINDPACKAGE)
   file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/Find${func_name_cap}.cmake  DESTINATION ${${func_name}_DESTDIR})
+endif()
 
       find_package(${func_name_cap})
       if(${func_name}_FOUND)
@@ -1411,7 +1387,9 @@ function(now_really_build_fgsl1)
           set (${pre_func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX}/${pre_func_name})
         endif()
 
+if (OWN_FIND_ALL_PACKAGE)
   file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/Find${pre_func_name_cap}.cmake  DESTINATION ${${pre_func_name}_DESTDIR})
+endif()
 
 
   find_package(${pre_func_name_cap})
@@ -1551,6 +1529,8 @@ function(now_really_build_fgsl1)
 
   message(STATUS "finished with autoreconf dir in ${GLOBAL1}/${func_name} - status is ${status}")
 
+#jsl - need to think about this - why do I have /bmad/external/lib in this PKG_CONFIG_PATH?)
+  message("PKG_CONFIG_PATH: /home/cfsd/laster/bmad/external/lib $ENV{PKG_CONFIG_PATH} ${${func_name}_pc_flags}") 
   message("PKG_CONFIG_PATH: /home/cfsd/laster/bmad/external/lib $ENV{PKG_CONFIG_PATH} ${${func_name}_pc_flags}") 
 
   set(${func_name}_build_type "")
@@ -1632,7 +1612,9 @@ function(build_lapack95)
           set (${func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX}/${func_name})
         endif()
 
+if (OWN_FINDPACKAGE)
 	file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/Find${func_name_cap}.cmake DESTINATION ${${func_name}_DESTDIR})
+endif()
 
       find_package(${func_name_cap})
       if(${func_name}_FOUND)
@@ -1675,7 +1657,9 @@ function(now_really_build_lapack95)
     set (${func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX}/${func_name})
   endif()
 
+if (OWN_FINDPACKAGE)
   file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/Find${func_name_cap}.cmake DESTINATION ${${func_name}_DESTDIR})
+endif()
 
   find_package(LAPACK)
   if (NOT LAPACK_FOUND)
@@ -1754,7 +1738,9 @@ function(build_xraylib)
           set (${func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX}/${func_name})
         endif()
 
+if (OWN_FINDPACKAGE)
   file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/Find${func_name_cap}.cmake  DESTINATION ${${func_name}_DESTDIR})
+endif()
 
       find_package(${func_name_cap})
       if(${func_name}_FOUND)
@@ -1792,7 +1778,9 @@ function(now_really_build_xraylib)
     set (${func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX}/${func_name})
   endif()
 
+if (OWN_FINDPACKAGE)
   file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/Find${func_name_cap}.cmake  DESTINATION ${${func_name}_DESTDIR})
+endif()
 
   message(STATUS "set ${func_name}_srcdir to ${CMAKE_CURRENT_BINARY_DIR}/${func_name}-prefix - value of ${func_name}_destdir is ${${func_name}_DESTDIR}")
 
@@ -1833,6 +1821,7 @@ function(now_really_build_xraylib)
     CONFIGURE_COMMAND
       "${GLOBAL1}/${func_name}/configure"
       "--prefix=${${func_name}_DESTDIR}"
+#      "--includedir=${CMAKE_INSTALL_PREFIX}/jsl1"
       "--disable-idl"
       "--disable-java"
       "--disable-lua"
@@ -1857,12 +1846,30 @@ function(now_really_build_xraylib)
     INSTALL_COMMAND make install
   )
 
-  install(
-    DIRECTORY
-    COMPONENT ${func_name}
-    DESTINATION "${${func_name}_DESTDIR}"
-    USE_SOURCE_PERMISSIONS
+# do I need to delete the original files in the ${func_name} directory? - for now, leaving them!
+  add_custom_command(TARGET ${func_name} POST_BUILD
+#     message(STATUS "Copying xraylib include files now after the build is complete")
+     COMMENT "Copying ${func_name} include files now after the build is complete"
+#      COMMAND echo hello
+      COMMAND ${CMAKE_COMMAND} -E copy
+	"${CMAKE_INSTALL_PREFIX}/include/${func_name}/*"
+	"${CMAKE_INSTALL_PREFIX}/include"
+#      COMMENT "MyComment"
   )
+
+##Error copying file
+# "/home/cfsd/laster/bmad/production_build.4.7.25.0851/include/xraylib"
+# to
+# "/home/cfsd/laster/bmad/production_build.4.7.25.0851/include".
+##
+
+# I do not believe this did anything!
+#  install(
+#    FILES
+#    ${${func_name}_DESTDIR}/include/${func_name}/xraylib.mod
+#    DESTINATION
+#    "${${func_name}_DESTDIR}/include"
+#  )
 
 # lastly, install a Find${func_name}.cmake file - for allowing cmake to find the build of ${func_name} (module)
 #  file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/Find${func_name}.cmake  DESTINATION ${${func_name}_DESTDIR})

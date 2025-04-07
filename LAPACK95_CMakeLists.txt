@@ -88,6 +88,8 @@ add_library(lapack95 SHARED ${SRCS})
       ${lapack95_module_dir}/f95_lapack.mod
       ${lapack95_module_dir}/la_auxmod.mod
       ${lapack95_module_dir}/la_precision.mod
-      DESTINATION lib/fortran/modules/lapack95)
+#      DESTINATION lib/fortran/modules/lapack95)
+      DESTINATION include
+    )
 
 #include($ENV{ACC_BUILD_SYSTEM}/Master.cmake)

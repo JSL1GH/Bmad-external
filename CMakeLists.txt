@@ -182,6 +182,9 @@ set(LIST_OF_PATHS ${CMAKE_PREFIX_PATH})
 
   option(BUILD_ANYWAY "Build all packages - or the specified ones - even if they are available on the system!" "OFF")
 
+  option(OWN_FINDPACKAGE "Use our definition of find_package for non standard packages!" "OFF")
+  option(OWN_FIND_ALL_PACKAGE "Use our definition of find_package - even if they are available on the system!" "OFF")
+
   set(CMAKE_INSTALL_ANYWAY ${BUILD_ANYWAY})
 
   if(DEFINED CACHE{CMAKE_PRINT_DEBUG})
@@ -189,8 +192,6 @@ set(LIST_OF_PATHS ${CMAKE_PREFIX_PATH})
     message(STATUS "If value is ON - packages will be built - no matter what")
   endif()
 #return()
-
-#  message(STATUS "CMakeLists.txt - status of build_all is ${BUILD_ALL}")
 
 #return()
 #list(APPEND EXT_LIBS h5cc lapack plplot fftw openmpi fgsl lapack95 xraylib)
@@ -250,7 +251,7 @@ endif()
 	if (${BUILD_ANYWAY} STREQUAL "OFF")
           #executing the find_package step yields this warning message
           #f951: Warning: ‘-Werror=’ argument ‘-Werror=format-security’ is not valid for Fortran
-	  find_package(HDF5 COMPONENTS Fortran)
+	  find_package(HDF5 COMPONENTS Fortran HINTS ${CMAKE_INSTALL_PREFIX})
 	endif()
       elseif (${VAR1} STREQUAL "xraylib")
       	#special test for hdf5

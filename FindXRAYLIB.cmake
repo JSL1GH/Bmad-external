@@ -1,4 +1,5 @@
-find_path(xraylib_INCLUDE_DIR xraylib.mod ${CMAKE_MODULE_PATH}/include/xraylib)
+find_path(xraylib_INCLUDE_DIR xraylib.mod ${CMAKE_MODULE_PATH}/include)
+#find_path(xraylib_INCLUDE_DIR xraylib.mod ${CMAKE_MODULE_PATH}/include/xraylib)
 #find_library(xraylib_LIBRARY xraylib)
 #find_path(xraylib_INCLUDE_DIR xraylib.h)
 #find_library(xraylib_LIBRARY xraylib)

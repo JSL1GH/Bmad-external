@@ -23,8 +23,8 @@ endif()
 if(PLPLOT_FOUND)
   set(plplot_LIBRARIES ${plplot_LIBRARY})
   set(plplot_INCLUDE_DIRS ${plplot_INCLUDE_DIR})
-  set(PLPLOT_LIBRARIES ${plplot_LIBRARY})
-  set(PLPLOT_INCLUDE_DIRS ${plplot_INCLUDE_DIR})
+#  set(PLPLOT_LIBRARIES ${plplot_LIBRARY})
+#  set(PLPLOT_INCLUDE_DIRS ${plplot_INCLUDE_DIR})
 endif()
 
 # FindPlplot.cmake

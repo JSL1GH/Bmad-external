@@ -35,6 +35,8 @@
   if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
      message(STATUS "In routine of check for CMAKE_INSTALL_PREFIX - was not set!")
 #  SET(CMAKE_INSTALL_PREFIX "/path/to/subdir" CACHE PATH "install prefix" FORCE)
+#   SET(CMAKE_INSTALL_PREFIX "$ENV{HOME}/bmad/external")
+#   message(STATUS "User did not supply a value for CMAKE_INSTALL_PREFIX - defaulting to user's home area")
   endif(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 
   if (NOT CMAKE_BUILD_TYPE)
@@ -48,12 +50,22 @@
 
 #This for ExternalProject_Add
 
-  if(NOT DEFINED ${CMAKE_INSTALL_PREFIX})
 
-    message(STATUS "CMAKE IS NOT DEFINED")
-  elseif()
-    message(STATUS "CMAKE IS DEFINED")
-  endif()
+message(STATUS "VALUE OF CMAKE_INSTALL_PREFIX IS ${CMAKE_INSTALL_PREFIX} ")
+
+
+#  if(NOT DEFINED ${CMAKE_INSTALL_PREFIX})
+# TRYING TO UNDERSTAND THIS - SEEMS THAT IS DO NOT REALLY
+# UNDERSTAND WHAT 'DEFINED' and 'NOT DEFINED' MEAN REGARDING A CMAKE VARIABLE
+#message("HERE1")
+#  if(DEFINED ${CMAKE_INSTALL_PREFIX})
+#message("HERE2")
+#    message(STATUS "CMAKE IS DEFINED")
+#  else()
+#message("HERE3")
+#    message(STATUS "CMAKE IS NOT DEFINED")
+#  endif()
+#message("HERE4")
 
   include(ExternalProject)
 
@@ -127,7 +139,7 @@
         endif()
       endif()
     else()
-      message("User has set a value of {CMAKE_INSTALL_PREFIX}")
+      message("User has set a value of ${CMAKE_INSTALL_PREFIX}")
     endif()
   else()   
     message (STATUS "No value given for CMAKE_INSTALL_PREFIX - defaulting to $ENV{HOME}/bmad/external")
@@ -138,6 +150,15 @@
     message (STATUS "Global variable file is ${GLOBAL_VARIABLE_FILE}")
     message (STATUS "CMAKE_INSTALL_PREFIX variable file is ${CMAKE_INSTALL_PREFIX}")
   endif()
+
+
+  if (DEFINED CMAKE_PREFIX_PATH)
+    set (CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH};${CMAKE_INSTALL_PREFIX}/lib)
+  else()
+    set (CMAKE_PREFIX_PATH ${CMAKE_INSTALL_PREFIX})
+  endif()
+
+  message(STATUS "CMAKE_PREFIX_PATH IS NOW ${CMAKE_PREFIX_PATH}")
 
 #return()
 
@@ -163,6 +184,7 @@
 #jsl - maybe needs to be CMAKE_MODULE_PATH?
 #  set( LIST_OF_PATHS ${CMAKE_PREFIX_PATH})
 #set(LIST_OF_PATHS ${CMAKE_MODULE_PATH})
+
 set(LIST_OF_PATHS ${CMAKE_PREFIX_PATH})
 
 #set_property (GLOBAL PROPERTY LIST_OF_PATHS ${CMAKE_PREFIX_PATH})
@@ -178,12 +200,12 @@ set(LIST_OF_PATHS ${CMAKE_PREFIX_PATH})
   option(BUILD_XRAYLIB "Build xraylib" OFF)
   option(BUILD_FFTW "Build fftw" OFF)
 #option(BUILD_OPENMPI "Build openmpi" OFF)
-  option(BUILD_ALL "Build all" "OFF")
+  option(BUILD_ALL "Build all" OFF)
 
-  option(BUILD_ANYWAY "Build all packages - or the specified ones - even if they are available on the system!" "OFF")
+  option(BUILD_ANYWAY "Build all packages - or the specified ones - even if they are available on the system!" OFF)
 
-  option(OWN_FINDPACKAGE "Use our definition of find_package for non standard packages!" "OFF")
-  option(OWN_FIND_ALL_PACKAGE "Use our definition of find_package - even if they are available on the system!" "OFF")
+  option(OWN_FINDPACKAGE "Use our definition of find_package for non standard packages!" ON)
+  option(OWN_FIND_ALL_PACKAGE "Use our definition of find_package - even if they are available on the system!" OFF)
 
   set(CMAKE_INSTALL_ANYWAY ${BUILD_ANYWAY})
 
@@ -327,6 +349,7 @@ endif()
 			# let's check if we have the package in our local bmad area - ~/.bmad_external
 			
 			
+
 			message (STATUS "Building package ${VAR1}")
 			
 			if (${PACKAGE} STREQUAL "h5cc")

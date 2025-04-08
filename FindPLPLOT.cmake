@@ -14,15 +14,17 @@ if(plplot_LIBRARY)
 endif()
 
 if(plplot_INCLUDE_DIR AND plplot_LIBRARY)
-  set(plplot_FOUND TRUE)
+  set(PLPLOT_FOUND TRUE)
   message(STATUS "All is good - continuing")
 else()
   message(STATUS "Issues - missing something - trouble ahead")
 endif()
 
-if(plplot_FOUND)
+if(PLPLOT_FOUND)
   set(plplot_LIBRARIES ${plplot_LIBRARY})
   set(plplot_INCLUDE_DIRS ${plplot_INCLUDE_DIR})
+  set(PLPLOT_LIBRARIES ${plplot_LIBRARY})
+  set(PLPLOT_INCLUDE_DIRS ${plplot_INCLUDE_DIR})
 endif()
 
 # FindPlplot.cmake

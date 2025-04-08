@@ -51,6 +51,11 @@ BUILD_ANYWAY [ON|OFF] - default is OFF.  Allows a user to indicate that the buil
 
 CMAKE_BUILD_TYPE=Release [Release|Debug] - allows a user to specify if the build is a production build or a debug build.  A debug build will include information for debugging code.
 
+OWN_FINDPACKAGE [ON|OFF] - defaults to ON - this should always be used - our own home grown FIND_PACKAGE - for packages that do not have "native" cmake support.
+
+OWN_FIND_ALL_PACKAGE [ON|OFF] - defaults to OFF - should not be necessary - as cmake should have this support already there - but a user may elect to use our home grown version - but caveat emptor
+
+
 Note:
 
 For repeated builds, be sure to clear the 'cmake cache' by removing the Bmad-external/buildhere/CMakeCache.txt file (of course, buildhere is the directory I used in my example install above - please change accordingly)
@@ -129,7 +134,6 @@ option(BUILD_ANYWAY "Build all packages - or the specified ones - even if they a
 cmake .. -DCMAKE_PRINT_DEBUG=True -DCUSER_FORCE=True -DCMAKE_BUILD_TYPE=Debug -DBUILD_OPENMPI=ON
 cmake .. -DCMAKE_PRINT_DEBUG=True -DCUSER_FORCE=True -DCMAKE_BUILD_TYPE=Debug -DBUILD_OPENMPI=ON -DBUILD_ANYWAY=ON
 
-
-
+cmake -DCUSER_FORCE=True -DCMAKE_INSTALL_PREFIX=/home/cfsd/laster/bmad/production_build.4.7.25.1334 -DCMAKE_PRINT_DEBUG=ON -DBUILD_ANYWAY=ON -DOWN_FINDPACKAGE=True ..
 
 

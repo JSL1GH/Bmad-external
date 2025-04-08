@@ -14,15 +14,16 @@ if(fftw_LIBRARY)
 endif()
 
 if(fftw_INCLUDE_DIR AND fftw_LIBRARY)
-  set(fftw_FOUND TRUE)
+  set(FFTW_FOUND TRUE)
   message(STATUS "All is good - continuing")
 else()
   message(STATUS "Issues - missing something - trouble ahead")
 endif()
 
-if(fftw_FOUND)
-  set(fftw_LIBRARIES ${fftw_LIBRARY})
-  set(fftw_INCLUDE_DIRS ${fftw_INCLUDE_DIR})
+if(FFTW_FOUND)
+  message(STATUS "WE NOW INDICATE A VALUE FFTW package - ${FFTW_FOUND}")
+  set(FFTW_LIBRARIES ${fftw_LIBRARY})
+  set(FFTW_INCLUDE_DIRS ${fftw_INCLUDE_DIR})
 endif()
 
 # FindFftw.cmake

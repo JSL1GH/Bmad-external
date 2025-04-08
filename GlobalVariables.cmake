@@ -175,11 +175,14 @@
     else()
 #      message (STATUS "is ${dirname} not hdf5")
       if ("${dirname}" STREQUAL "lapack")
-        build_lapack()
+        build_package1("lapack" "LAPACK" "now_really_build_lapack")
+#        build_lapack()
       elseif ("${dirname}" STREQUAL "plplot")			
-	build_plplot()
+        build_package1("plplot" "PLPLOT" "now_really_build_plplot")
+#	build_plplot()
       elseif ("${dirname}" STREQUAL "fftw")			
-	build_fftw()
+        build_package1("fftw" "FFTW" "now_really_build_fftw")
+#	build_fftw()
       elseif ("${dirname}" STREQUAL "openmpi")			
 	build_openmpi()
 #		elseif ("${dirname}" STREQUAL "gsl")			
@@ -200,9 +203,11 @@
 
 #			file(COPY /Users/jlaster/BmadFiles/LAPACK95_CMakeLists.txt DESTINATION ${path}/${dirname})
 #			file(RENAME ${path}/${dirname}/LAPACK95_CMakeLists.txt ${path}/${dirname}/CMakeLists.txt)
-	build_lapack95()
+        build_package1("lapack95" "LAPACK95" "now_really_build_lapack95")
+#	build_lapack95()
       elseif ("${dirname}" STREQUAL "xraylib")
-	build_xraylib()
+        build_package1("xraylib" "XRAYLIB" "now_really_build_xraylib")
+#	build_xraylib()
       endif()
 
     endif()
@@ -422,6 +427,92 @@ endif()
 
   endfunction()
 
+#  function(now_really_build_lapack_jsl arg1)
+#    message("Executing function with ${arg1}")
+#  endfunction()
+
+
+  function(build_package1 package_lc package_uc build_function)
+
+    message("called with args ${package_lc}, ${package_uc}")
+    set (func_name ${package_lc})
+    set (func_name_cap ${package_uc})
+
+    include(ExternalProject)
+
+    if(BUILD_${func_name_cap})
+
+      message(STATUS "User wants to build ${func_name_cap}")
+
+      if (BUILD_ANYWAY)
+
+          message(STATUS "User wants to build ${func_name_cap} even if already installed")
+#	  set(CMAKE_DISABLE_FIND_PACKAGE_lapack TRUE)
+#	  message(STATUS "Value of CMAKE_DISABLE_FIND_PACKAGE_LAPACK is ${CMAKE_DISABLE_FIND_PACKAGE_lapack}")
+	  #now_really_build_lapack()
+#	  ${build_function}()
+# THIS DID NOT WORK
+#          set(build_function_test "now_really_build_lapack_jsl")
+# THIS WORKS!
+#          cmake_language(CALL ${build_function_test} "ARGUMENT")
+	  cmake_language(CALL ${build_function})
+        else()
+
+          message(STATUS "(IN GENERIC BUILD_PACKAGE1) Checking to see if we should build ${func_name_cap} - will not build if it is already installed")
+
+
+
+        # first layout how to find the file!
+        # set ${func_name}_DESTDIR to have install directory by default
+        set(${func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX})
+
+        if(${INSTALL_IN_SEPARATE_DIRS} EQUAL 1)
+          set (${func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX}/${func_name})
+        endif()
+
+if (OWN_FIND_ALL_PACKAGE)
+    file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/Find${func_name_cap}.cmake DESTINATION ${${func_name}_DESTDIR})
+endif()
+
+
+	  message(STATUS "GENERIC build_package1 - HERE IS WHERE WE DO THE FIND_PACKAGE CHECK")
+          message(STATUS "Adding hint to find_package - ${func_name_cap} - look in - ${CMAKE_PREFIX_PATH}")
+          find_package(${func_name_cap} HINTS ${CMAKE_PREFIX_PATH})
+#          find_package(${func_name_cap})
+
+#find_package(FFTW)
+
+#find_package(LAPACK)
+
+#if(LAPACK_FOUND)
+#message(STATUS "LAPACK GOOD")
+#else()
+#message(STATUS "LAPACK NOT GOOD")
+
+#endif()
+
+#message(STATUS "Argument of find_package isOOKING FOR 
+#          find_package(${func_name_cap})
+
+          if(${func_name_cap}_FOUND)
+            message(STATUS "GENERIC - No need to build ${func_name_cap} - already found")
+          else()
+	    message(STATUS "GENERIC - Could not find ${func_name_cap} - building ${func_name} now")
+#	  now_really_build_lapack()
+#message(STATUS "Need to put this back!")
+#          ${build_function}
+	  cmake_language(CALL ${build_function})
+        endif()
+
+      endif()
+
+    else()
+
+      message(STATUS "No need to build ${func_name_cap}")
+
+    endif()
+
+  endfunction()
 
   function(build_lapack)
 

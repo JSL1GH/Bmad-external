@@ -1146,40 +1146,40 @@ endif()
     set(func_name "fgsl")
     set(func_name_cap "FGSL")
 
-  message(STATUS "Now really building ${func_name}")
+    message(STATUS "Now really building ${func_name}")
 
-  message(STATUS "Have reached here - ${func_name}")
+    message(STATUS "Have reached here - ${func_name}")
 
-  get_property(GLOBAL2 GLOBAL PROPERTY EXTERNAL_BMAD_SOURCE_DIRECTORY)
-  get_property(GLOBAL1 GLOBAL PROPERTY BMAD_EXTERNAL_PACKAGES)
+    get_property(GLOBAL2 GLOBAL PROPERTY EXTERNAL_BMAD_SOURCE_DIRECTORY)
+    get_property(GLOBAL1 GLOBAL PROPERTY BMAD_EXTERNAL_PACKAGES)
 
 #  message ("Value of global1 is ${GLOBAL1}")
 #  message ("Value of global2 is ${GLOBAL2}")
 #  message ("Value of CMAKE_CURRENT_BINARY_DIR is ${CMAKE_CURRENT_BINARY_DIR}")
 
-  set(${pre_func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX})
-  set(${func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX})
+    set(${pre_func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX})
+    set(${func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX})
 
-  if(${INSTALL_IN_SEPARATE_DIRS} EQUAL 1)
-    set (${pre_func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX}/gsl)
-    set (${func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX}/${func_name})
-  endif()
+    if(${INSTALL_IN_SEPARATE_DIRS} EQUAL 1)
+      set (${pre_func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX}/gsl)
+      set (${func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX}/${func_name})
+    endif()
 
-  if(DEFINED CACHE{CMAKE_PRINT_DEBUG})
-    message ("Set ${pre_func_name}_DESTDIR - value has been set to - ${${pre_func_name}_DESTDIR}")
-    message ("Set ${func_name}_DESTDIR - value has been set to - ${${func_name}_DESTDIR}")
-  endif()
+    if(DEFINED CACHE{CMAKE_PRINT_DEBUG})
+      message ("Set ${pre_func_name}_DESTDIR - value has been set to - ${${pre_func_name}_DESTDIR}")
+      message ("Set ${func_name}_DESTDIR - value has been set to - ${${func_name}_DESTDIR}")
+    endif()
 
-  message(STATUS "In GlobalVariables.cmake - Building the project with a build type of ${CMAKE_BUILD_TYPE}")
+    message(STATUS "In GlobalVariables.cmake - Building the project with a build type of ${CMAKE_BUILD_TYPE}")
 
-  set(NEED_TO_BUILD_GSL 0)
+    set(NEED_TO_BUILD_GSL 0)
 
-        # set ${func_name}_DESTDIR to have install directory by default
-        set(${pre_func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX})
+#  set ${func_name}_DESTDIR to have install directory by default
+    set(${pre_func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX})
 
-        if(${INSTALL_IN_SEPARATE_DIRS} EQUAL 1)
-          set (${pre_func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX}/${pre_func_name})
-        endif()
+    if(${INSTALL_IN_SEPARATE_DIRS} EQUAL 1)
+      set (${pre_func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX}/${pre_func_name})
+    endif()
 
 if (OWN_FIND_ALL_PACKAGE)
   file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/Find${pre_func_name_cap}.cmake  DESTINATION ${${pre_func_name}_DESTDIR})
@@ -1190,22 +1190,22 @@ endif()
 
   find_package(${pre_func_name_cap})
 
-  if(${pre_func_name}_VERSION)
+  if(${pre_func_name_cap}_VERSION)
 
-    set(STR1 ${${pre_func_name}_VERSION})
+    set(STR1 ${${pre_func_name_cap}_VERSION})
     set(STR2 "2.6")
 
     if("${STR1}" VERSION_LESS "${STR2}")
 
       message(STATUS "Installed version is less than 2.6 - build GSL")
-      set(NEED_TO_BUILD_${pre_func_name} 1)
+      set(NEED_TO_BUILD_${pre_func_name_cap} 1)
  
     else()
 
       message(STATUS "Installed version is equal to or greater than 2.6 - no need to build ${pre_func_name}")
       if (${CMAKE_INSTALL_ANYWAY})
         message(STATUS "Installing ${pre_func_name} anyway - that is, we found the right version, but laying down code to build anyway")
-	set(NEED_TO_BUILD_${pre_func_name} 1)
+	set(NEED_TO_BUILD_${pre_func_name_cap} 1)
       endif()
 	
     endif()
@@ -1213,11 +1213,11 @@ endif()
   else()
 
     message(STATUS "No ${pre_func_name} version found - probably not installed - build ${pre_func_name}")
-    set(NEED_TO_BUILD_${pre_func_name} 1)
+    set(NEED_TO_BUILD_${pre_func_name_cap} 1)
 
   endif()
 
-  if (${NEED_TO_BUILD_${pre_func_name}} EQUAL 1)
+  if (${NEED_TO_BUILD_${pre_func_name_cap}} EQUAL 1)
 
     set(${pre_func_name}_build_type "")
 

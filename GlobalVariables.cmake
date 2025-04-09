@@ -276,7 +276,7 @@ if (OWN_FIND_ALL_PACKAGE)
 endif()
 
 	find_package(${func_name_cap} COMPONENTS Fortran)
-        if (${func_name}_FOUND)
+        if (${func_name_cap}_FOUND)
   
 #jsl - I do not see where this file exists - maybe a Scott special?
           message(STATUS "${func_name_cap}_Fortran was found - continuing - Scott had a test that I am not implementing right now - do we need it?")

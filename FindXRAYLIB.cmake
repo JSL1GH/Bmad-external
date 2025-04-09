@@ -18,6 +18,8 @@ endif()
 if(xraylib_INCLUDE_DIR)
   set(XRAYLIB_FOUND "TRUE" PARENT_SCOPE)
 #  set(XRAYLIB_FOUND "TRUE")
+  set(XRAYLIB_FOUND TRUE)
+  message(STATUS "All is good - continuing")
   
   message(STATUS "All is good - continuing - ${XRAYLIB_FOUND}")
 else()

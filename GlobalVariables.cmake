@@ -1385,6 +1385,17 @@ endif()
 # lastly, install a Findfgsllib.cmake file - for allowing cmake to find the build of fgsl (module)
 #  file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/Find${func_name}lib.cmake DESTINATION ${GLOBAL1}/${func_name})
 
+# do I need to delete the original files in the ${func_name} directory? - for now, leaving them!
+  add_custom_command(TARGET ${func_name} POST_BUILD
+#     message(STATUS "Copying xraylib include files now after the build is complete")
+     COMMENT "Copying ${func_name} include files now after the build is complete"
+#      COMMAND echo hello
+      COMMAND ${CMAKE_COMMAND} -E copy
+	"${CMAKE_INSTALL_PREFIX}/include/${func_name}/*"
+	"${CMAKE_INSTALL_PREFIX}/include"
+#      COMMENT "MyComment"
+  )
+
   message(STATUS "Finished setting up the build needed for ${func_name}")
 
 endfunction()

@@ -830,17 +830,18 @@ endif()
 #
 
 
-# do I need to delete the original files in the ${func_name} directory? - for now, leaving them!
-  add_custom_command(TARGET ${func_name} POST_BUILD
-#     message(STATUS "Copying xraylib include files now after the build is complete")
-     COMMENT "Copying ${func_name} include files now after the build is complete"
-#      COMMAND echo hello
-      COMMAND ${CMAKE_COMMAND} -E copy
-	"${CMAKE_INSTALL_PREFIX}/include/${func_name}/*"
-	"${CMAKE_INSTALL_PREFIX}/include"
-#      COMMENT "MyComment"
-  )
-
+## do I need to delete the original files in the ${func_name} directory? - for now, leaving them!
+#  add_custom_command(TARGET ${func_name} POST_BUILD
+##     message(STATUS "Copying xraylib include files now after the build is complete")
+#     COMMENT "Copying ${func_name} include files now after the build is complete"
+##      COMMAND echo hello
+#
+# it seems to me there is nothing to copy from include/plplot
+#      COMMAND ${CMAKE_COMMAND} -E copy
+#	"${CMAKE_INSTALL_PREFIX}/include/${func_name}/*"
+#	"${CMAKE_INSTALL_PREFIX}/include"
+##      COMMENT "MyComment"
+#  )
 
     message(STATUS "Finished setting up the build needed for ${func_name}")
 
@@ -1188,8 +1189,9 @@ if (OWN_FINDPACKAGE)
 #  file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/Find${func_name_cap}.cmake DESTINATION ${GLOBAL1}/${${func_name}_DESTDIR})
 endif()
 
-  find_package(${pre_func_name_cap})
-
+#  find_package(${pre_func_name_cap})
+message(STATUS "JUST A TEST! - ${pre_func_name_cap} - HINTS - To LOOK IN ${CMAKE_PREFIX_PATH}")
+  find_package(${pre_func_name_cap} HINTS ${CMAKE_PREFIX_PATH})
   if(${pre_func_name_cap}_VERSION)
 
     set(STR1 ${${pre_func_name_cap}_VERSION})
@@ -1448,248 +1450,6 @@ endif()
     message(STATUS "No need to build ${func_name_cap}")
 
   endif()
-
-endfunction()
-
-function(now_really_build_fgsl1)
-
-  set(pre_func_name "gsl")
-  set(pre_func_name_cap "GSL")
-  set(func_name "fgsl")
-  set(func_name_cap "FGSL")
-
-  message(STATUS "Now really building ${func_name}")
-
-  message(STATUS "Have reached here - ${func_name}")
-
-  get_property(GLOBAL2 GLOBAL PROPERTY EXTERNAL_BMAD_SOURCE_DIRECTORY)
-  get_property(GLOBAL1 GLOBAL PROPERTY BMAD_EXTERNAL_PACKAGES)
-
-#  message ("Value of global1 is ${GLOBAL1}")
-#  message ("Value of global2 is ${GLOBAL2}")
-#  message ("Value of CMAKE_CURRENT_BINARY_DIR is ${CMAKE_CURRENT_BINARY_DIR}")
-
-  set(${pre_func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX})
-  set(${func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX})
-
-  if(${INSTALL_IN_SEPARATE_DIRS} EQUAL 1)
-    set (${pre_func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX}/${pre_func_name})
-    set (${func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX}/${func_name})
-  endif()
-
-  if(DEFINED CACHE{CMAKE_PRINT_DEBUG})
-    message ("Set ${pre_func_name}_DESTDIR - value has been set to - ${gsl_DESTDIR}")
-    message ("Set ${func_name}_DESTDIR - value has been set to - ${${func_name}_DESTDIR}")
-  endif()
-
-  message(STATUS "In GlobalVariables.cmake - Building the project with a build type of ${CMAKE_BUILD_TYPE}")
-
-  set(NEED_TO_BUILD_GSL 0)
-
-        # set ${func_name}_DESTDIR to have install directory by default
-        set(${pre_func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX})
-
-        if(${INSTALL_IN_SEPARATE_DIRS} EQUAL 1)
-          set (${pre_func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX}/${pre_func_name})
-        endif()
-
-if (OWN_FIND_ALL_PACKAGE)
-  file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/Find${pre_func_name_cap}.cmake  DESTINATION ${${pre_func_name}_DESTDIR})
-endif()
-
-
-  find_package(${pre_func_name_cap})
-
-  if(GSL_VERSION)
-
-    set(STR1 ${GSL_VERSION})
-    set(STR2 "2.6")
-
-    if("${STR1}" VERSION_LESS "${STR2}")
-
-      message(STATUS "Installed version is less than 2.6 - build ${pre_func_name_cap}")
-      set(NEED_TO_BUILD_GSL 1)
- 
-    else()
-
-      message(STATUS "Installed version is equal to or greater than 2.6 - no need to build GSL")
-      if (${CMAKE_INSTALL_ANYWAY})
-        message(STATUS "Installing GSL anyway - that is, we found the right version, but laying down code to build anyway")
-	set(NEED_TO_BUILD_GSL 1)
-      endif()
-	
-    endif()
-
-  else()
-
-    message(STATUS "No GSL version found - probably not installed - build GSL")
-    set(NEED_TO_BUILD_GSL 1)
-
-  endif()
-
-  if (${NEED_TO_BUILD_GSL} EQUAL 1)
-
-    set(gsl_build_type "")
-
-    if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
-      set(gsl_build_type "CFLAGS=-g -O0")
-#      set(gsl_build_type "-d")
-    endif()
-
-    ExternalProject_Add(gsl
-
-      SOURCE_DIR "${GLOBAL1}/gsl"
-
-      CONFIGURE_COMMAND
-
-        "${GLOBAL1}/gsl/configure"
-        "--prefix=${gsl_DESTDIR}"
-        "--enable-shared"
-        "--disable-static"
-	"--disable-tests"
-	"${gsl_build_type}"
-
-      CMAKE_ARGS
-	-DCMAKE_INSTALL_PREFIX:PATH=${gsl_DESTDIR}
-        -DBUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
-
-      CMAKE_CACHE_ARGS
-	-DCMAKE_C_COMPILER:STRING=${CMAKE_C_COMPILER}
-        -DCMAKE_CXX_COMPILER:STRING=${CMAKE_CXX_COMPILER}
-
-      BUILD_ALWAYS true
-      BUILD_COMMAND make
-      INSTALL_COMMAND make install
-    )
-
-    message ("Set gsl_DESTDIR - value After ExternalProject_Add is now - ${gsl_DESTDIR}")
-
-    install(
-      DIRECTORY
-      COMPONENT gsl
-      DESTINATION "${gsl_DESTDIR}"
-      USE_SOURCE_PERMISSIONS
-    )
-
-    message(STATUS "Finished the NEED TO BUILD section for gsl")
-
-  else()
-
-    add_custom_target(gsl "true")
-    message(STATUS "No reason to build gsl")
-
-  endif()
-
-  message(STATUS "Finished setting up the build needed for gsl")
-
-  if(EXISTS ENV{PKG_CONFIG_PATH})
-    message ("pkg_config_path does exist")
-    set(${func_name}_pc_flags "PKG_CONFIG_PATH=${CMAKE_INSTALL_PREFIX}/${pre_func_name}/lib/pkgconfig:$ENV{PKG_CONFIG_PATH}")
-  else()
-    message ("pkg_config_path does not exist")
-    set(${func_name}_pc_flags "PKG_CONFIG_PATH=${CMAKE_INSTALL_PREFIX}/${pre_func_name}/lib/pkgconfig")
-  endif()
-
-  message ("Starting setup of ${func_name}")
-
-  if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
-    set(${func_name}_fcflags "-ffree-line-length-none")
-  endif()
-
-  if ("${CMAKE_Fortran_FLAGS}" STREQUAL "" AND DEFINED ${func_name}_fcflags)
-    set (${func_name}_fcflags "FCFLAGS=${${func_name}_fcflags}")
-  elseif (NOT "${CMAKE_Fortran_FLAGS}" STREQUAL "" AND NOT DEFINED ${func_name}_fcflags)
-    set (${func_name}_fcflags "FCFLAGS=${CMAKE_Fortran_FLAGS}")
-  elseif (NOT "${CMAKE_Fortran_FLAGS}" STREQUAL "" AND DEFINED ${func_name}_fcflags)
-    set (${func_name}_fcflags "FCFLAGS=${CMAKE_Fortran_FLAGS} ${${func_name}_fcflags}")
-  endif()
-
-  set(${func_name}_pc_flags "PKG_CONFIG_PATH=${CMAKE_CURRENT_BINARY_DIR}/${pre_func_name}-prefix/src/${func_name}-build:$ENV{PKG_CONFIG_PATH}")
-
-  message(STATUS "Defining ExternalProject_Add for ${func_name}")
-
-  message(STATUS "set ${func_name}_srcdir to ${CMAKE_CURRENT_BINARY_DIR}/${func_name}-prefix")
-
-  set(${func_name}_srcdir "${CMAKE_CURRENT_BINARY_DIR}/${func_name}-prefix")
-	
-  message(STATUS "Execute process autoreconf now!")
-
-  message(STATUS " Another test")
-
-  message(STATUS "autoreconf dir is ${CMAKE_CURRENT_BINARY_DIR}/${func_name}-prefix")
-  set(${func_name}_autoreconfdir "${CMAKE_CURRENT_BINARY_DIR}/${func_name}-prefix")
-
-  if(EXISTS ${GLOBAL1}/${func_name}/configure.ac)
-    message (STATUS "Directory ${GLOBAL1}/${func_name} does exist!")
-  else()
-    message (STATUS "Directory ${GLOBAL1}/${func_name} does not exist")
-  endif()
-  
-# NOTE - JSL - I do not know how to set this to build into the build directory - modifies - that is, puts files into - the external package area.
-
-  execute_process(
-    WORKING_DIRECTORY "${GLOBAL1}/${func_name}"
-    COMMAND "autoreconf" "--install"
-    RESULT_VARIABLE status
-  )
-
-  message(STATUS "finished with autoreconf dir in ${GLOBAL1}/${func_name} - status is ${status}")
-
-#jsl - need to think about this - why do I have /bmad/external/lib in this PKG_CONFIG_PATH?)
-  message("PKG_CONFIG_PATH: /home/cfsd/laster/bmad/external/lib $ENV{PKG_CONFIG_PATH} ${${func_name}_pc_flags}") 
-  message("PKG_CONFIG_PATH: /home/cfsd/laster/bmad/external/lib $ENV{PKG_CONFIG_PATH} ${${func_name}_pc_flags}") 
-
-  set(${func_name}_build_type "")
-
-  if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
-      set(${func_name}_build_type "CFLAGS=-g -O0")
-#    set(fgsl_build_type "--debug")
-  endif()
-
-  ExternalProject_Add(${func_name}
-    SOURCE_DIR "${GLOBAL1}/${func_name}"
-    CONFIGURE_COMMAND
-      "${GLOBAL1}/${func_name}/configure"
-      "--prefix=${${func_name}_DESTDIR}"
-      "--disable-static"
-#      "--includedir=${${func_name}_DESTDIR}/lib/fortran/modules"
-      "${${func_name}_fcflags}"
-      "${${func_name}_pc_flags}"
-      "${${func_name}_build_type}"
-
-    CMAKE_ARGS
-      -DBUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
-
-    CMAKE_CACHE_ARGS
-      -DCMAKE_C_COMPILER:STRING=${CMAKE_C_COMPILER}
-      -DCMAKE_CXX_COMPILER:STRING=${CMAKE_CXX_COMPILER}
-
-    BUILD_ALWAYS true
-    BUILD_COMMAND make -j 1
-    INSTALL_COMMAND make install
-  )
-
-  message ("Set ${func_name}_DESTDIR - value After ExternalProject_Add is now - ${${func_name}_DESTDIR}")
-
-  if (${NEED_TO_BUILD_GSL} EQUAL 1)
-    message(STATUS "If we had to build our own ${pre_func_name} - Set up dependency for ${func_name} - it depends on ${pre_func_name}!")
-# (I think) this allows gsl to be built before fgsl is built - so find_package - during build of fgsl - will use the newly built gsl library
-    add_dependencies(${func_name} ${pre_func_name})
-    target_link_libraries(${func_name} ${GSL_LIBRARIES}) 
-  endif()
-
-  install(
-    DIRECTORY
-    COMPONENT ${func_name}
-    DESTINATION "${${func_name}_DESTDIR}"
-    USE_SOURCE_PERMISSIONS
-  )
-
-# lastly, install a Findfgsllib.cmake file - for allowing cmake to find the build of fgsl (module)
-
-#  file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/Find${func_name_cap}.cmake  DESTINATION ${${func_name}_DESTDIR})
-
-  message(STATUS "Finished setting up the build needed for ${func_name} - copied file to ${${func_name}_DESTDIR}")
 
 endfunction()
 

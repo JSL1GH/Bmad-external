@@ -16,20 +16,30 @@ if(fgsl_INCLUDE_DIR)
 	message (STATUS "found fgsl.h - so now have a valid include dir")
 endif()
 if(fgsl_LIBRARY)
-	message (STATUS "found fgsl.so or .a -  - so now have a valid library")
+	message (STATUS "found fgsl.so or .a - so now have a valid library")
 endif()
 
 # also, let's check for a valid version of gsl - if not, we fail this!
 set(valid_gsl 0)
 
 set(pre_func_name_cap "GSL")
+set(pre_func_name "gsl")
 
-  find_package(${pre_func_name_cap})
+# need to account that user may have already installed a version of GSL in their
+# own special place - Just like when we look in our outer GlobalVariables.cmake
+
+message(STATUS "Will look for ${pre_func_name_cap} in ${CMAKE_PREFIX_PATH}")
+#find_package(${pre_func_name_cap} HINTS ${CMAKE_PREFIX_PATH})
+
+find_package(GSL)
 
   if(${pre_func_name_cap}_VERSION)
 
     set(STR1 ${${pre_func_name_cap}_VERSION})
     set(STR2 "2.6")
+
+    message(STATUS "Version of ${pre_func_name} found is ${${pre_func_name_cap}_LIBRARY} and includes ${${pre_func_name_cap}__INCLUDE_DIR} - VERSION is ${${pre_func_name_cap}_VERSION}")
+
 
     if("${STR1}" VERSION_LESS "${STR2}")
 
@@ -39,8 +49,10 @@ set(pre_func_name_cap "GSL")
     else()
 
       set(valid_gsl 1)
-      message(STATUS "We have a valid version of gsl - when checking for FGSL")
+      message(STATUS "We have a valid version of ${pre_func_name} - when checking for FGSL")
     endif()
+  else()
+    message(STATUS "No version of GSL found!")
   endif()
 
 if(fgsl_INCLUDE_DIR AND fgsl_LIBRARY AND valid_gsl)

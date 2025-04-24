@@ -153,7 +153,8 @@ message(STATUS "VALUE OF CMAKE_INSTALL_PREFIX IS ${CMAKE_INSTALL_PREFIX} ")
 
 
   if (DEFINED CMAKE_PREFIX_PATH)
-#    set (CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH};${CMAKE_INSTALL_PREFIX}:${CMAKE_INSTALL_PREFIX}/lib)
+    set (CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH};${CMAKE_INSTALL_PREFIX})
+#;${CMAKE_INSTALL_PREFIX}/lib)
   else()
 #    set (CMAKE_PREFIX_PATH ${CMAKE_INSTALL_PREFIX};${CMAKE_INSTALL_PREFIX}/lib)
     set (CMAKE_PREFIX_PATH ${CMAKE_INSTALL_PREFIX})
@@ -275,7 +276,8 @@ endif()
           #executing the find_package step yields this warning message
           #f951: Warning: ‘-Werror=’ argument ‘-Werror=format-security’ is not valid for Fortran
 #	  find_package(HDF5 COMPONENTS Fortran HINTS ${CMAKE_INSTALL_PREFIX})
-	  find_package(HDF5 COMPONENTS Fortran HINTS ${CMAKE_PREFIX_PATH})
+#	  find_package(HDF5 COMPONENTS Fortran HINTS ${CMAKE_PREFIX_PATH})
+	  find_package(HDF5 COMPONENTS Fortran)
 	endif()
       elseif (${VAR1} STREQUAL "xraylib")
       	#special test for hdf5

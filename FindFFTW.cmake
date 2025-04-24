@@ -1,3 +1,4 @@
+message(STATUS "Now in FindFFTW.cmake")
 find_path(fftw_INCLUDE_DIR fftw3.h ${CMAKE_MODULE_PATH}/include/fftw)
 #find_library(fftw_LIBRARY fftw)
 #find_path(fftw_INCLUDE_DIR fftw.h)

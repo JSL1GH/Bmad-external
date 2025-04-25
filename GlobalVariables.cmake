@@ -1924,4 +1924,6 @@ endif()
     endif()
   endforeach()
   message(STATUS "")
+
+  message(STATUS "Value of Check for fftw_devel is ${CHECK_FFTW_DEVEL}")
 endfunction()

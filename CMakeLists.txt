@@ -209,6 +209,8 @@ set(LIST_OF_PATHS ${CMAKE_PREFIX_PATH})
   option(OWN_FINDPACKAGE "Use our definition of find_package for non standard packages!" ON)
   option(OWN_FIND_ALL_PACKAGE "Use our definition of find_package - even if they are available on the system!" OFF)
 
+  option(CHECK_FFTW_DEVEL "Check for fftw-devel" OFF)
+
   set(CMAKE_INSTALL_ANYWAY ${BUILD_ANYWAY})
 
   if(DEFINED CACHE{CMAKE_PRINT_DEBUG})

@@ -1,8 +1,9 @@
 INSTALLATION
 
 /bin/bash
-MY_INSTALL_DIR="bmad.UNIQUE_STRING"
-BASE_PATH="${HOME}/FAVORITE_BMAD_PATH"
+MY_INSTALL_DIR="bmad.4.24.2025.1525"
+FAVORITE_BMAD_PATH="Projects"
+BASE_PATH="${HOME}/${FAVORITE_BMAD_PATH}"
 BASE_PATH_AND_INSTALL_DIR="${BASE_PATH}/${MY_INSTALL_DIR}"
 mkdir ${BASE_PATH_AND_INSTALL_DIR}
 cd ${BASE_PATH_AND_INSTALL_DIR}
@@ -137,3 +138,58 @@ cmake .. -DCMAKE_PRINT_DEBUG=True -DCUSER_FORCE=True -DCMAKE_BUILD_TYPE=Debug -D
 cmake -DCUSER_FORCE=True -DCMAKE_INSTALL_PREFIX=/home/cfsd/laster/bmad/production_build.4.7.25.1334 -DCMAKE_PRINT_DEBUG=ON -DBUILD_ANYWAY=ON -DOWN_FINDPACKAGE=True ..
 
 
+cmake -DCMAKE_PRINT_DEBUG=ON ..
+
+#user can specify where bmad_external link should look to find packages built that they would like to use
+#so end up overriding the "default" cmake find pathway
+-DCMAKE_PREFIX_PATH=/home/cfsd/laster/bmad/external
+
+
+/bin/bash
+MY_INSTALL_DIR="bmad.4.8.1423"
+BASE_PATH="${HOME}/Projects"
+BASE_PATH_AND_INSTALL_DIR="${BASE_PATH}/${MY_INSTALL_DIR}"
+mkdir ${BASE_PATH_AND_INSTALL_DIR}
+cd ${BASE_PATH_AND_INSTALL_DIR}
+git clone git@github.com:JSL1GH/Bmad-external.git --recurse-submodules
+cd Bmad-external
+mkdir buildhere
+cd buildhere
+cmake -DCMAKE_PRINT_DEBUG=True -DCUSER_FORCE=true ..
+make
+
+
+cd /home/cfsd/laster/Projects/bmad.4.21.2025.1525/Bmad-external/buildhere
+
+
+cmake -DCMAKE_PRINT_DEBUG=True -DCUSER_FORCE=True -DCMAKE_PREFIX_PATH=/home/cfsd/laster/bmad/external.prod ..
+
+
+cmake -DCMAKE_PRINT_DEBUG=True -DCUSER_FORCE=True -DCMAKE_PREFIX_PATH=/home/cfsd/laster/bmad/external.prod -DBUILD_ANYWAY=ON ..
+
+
+ /usr/bin/mkdir -p '/home/cfsd/laster/bmad/externalRelease/lib'
+ /bin/sh ../libtool   --mode=install /usr/bin/install -c   libxrlf03.la '/home/cfsd/laster/bmad/externalRelease/lib'
+libtool:   error: error: cannot install 'libxrlf03.la' to a directory not ending in /home/cfsd/laster/bmad/external/lib
+
+I was trying to understand this - don't understand why it only happens when I change the 
+CMAKE_INSTALL_PREFIX or the CMAKE_PREFIX_PATH.
+
+
+Command I used was:
+    cmake -DCMAKE_PRINT_DEBUG=True -DCUSER_FORCE=True -DCMAKE_INSTALL_PREFIX=/home/cfsd/laster/bmad/externalRelease -DCMAKE_PREFIX_PATH=/home/cfsd/laster/bmad/externalRelease ..
+
+And I think this is what may be going on!!
+
+First I build it successfully - after the initial install - going to wherever I tell it to go.
+Then I change the CMAKE_INSTALL_PREFIX or the CMAKE_PREFIX_PATH - and build it again - and everything goes bad.
+
+WHY?
+
+Because everything is really not 'pristine'.  It's not just a pure CMake build - there are some configures that get run along the way.
+I think those 'configures' end up hard-coding the initial paths - such that subsequent builds that not want to change some CMake variable paths.
+Don't get reapplied to those items built with configure.
+
+So any change of those values really requires a new fresh complete installation.
+
+cmake -DCMAKE_PRINT_DEBUG=True -DCUSER_FORCE=True -DCMAKE_INSTALL_PREFIX=/home/cfsd/laster/bmad/externalRelease -DCMAKE_PREFIX_PATH=/home/cfsd/laster/bmad/externalRelease -DENABLE_OPENMP=True ..

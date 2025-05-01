@@ -10,7 +10,12 @@
     message("All of the packages to be built can be found at ${CMAKE_ROLLOUT_CMAKE_FILES}/bmad-external-packages and ${BMAD_EXTERNAL_PACKAGES}")
   endif()
 
-
+#  message("SETTING REQUIRE_OPENMP to FALSE!!!!!!")
+#  set(REQUIRE_OPENMP False)
+#  set(REQUIRE_OPENMP False PARENT_SCOPE)
+#  set(HAVE_OPENMP False)
+#  set(HAVE_OPENMP False PARENT_SCOPE)
+  message("At this time, REQUIRE_OPENMP is ${REQUIRE_OPENMP}")
 
   # if the CMAKE_INSTALL_PREFIX is not an absolute path, then put the path in front!
   if(IS_ABSOLUTE "${CMAKE_INSTALL_PREFIX}")
@@ -93,6 +98,7 @@ message(STATUS "CMAKE_MODULE_PATH now has a value of ${CMAKE_MODULE_PATH}")
 #jsl - do we need this anymore?
 #    ensure_directory_exists("" ${GLOBAL1} "yes")
     install_the_external_package(${GLOBAL1} ${package_name})
+
   endfunction()
 
   #define a function
@@ -388,6 +394,11 @@ endif()
       set(${func_name}_build_type "--enable-build-mode=debug")
     endif()
 
+    message(STATUS "JSL2 - Before setting messages value of REQUIRE_OPENMP is ${REQUIRE_OPENMP} ")
+    set (${func_name}_OPENMP "")
+  
+    setopenmp(${func_name_cap} ${func_name})
+
 if (OWN_FIND_ALL_PACKAGE)
     file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/Find${func_name_cap}.cmake DESTINATION ${${func_name}_DESTDIR})
 endif()
@@ -411,6 +422,7 @@ endif()
 # THIS SWITCH DECIDES if .a or .so
 	"--disable-static"
 	"--disable-tests"
+        ${${func_name}_OPENMP}
 #Scott says don't specify where include files ago
 #	"--includedir=${${func_name}_DESTDIR}/include/${func_name}"
 # THIS did not work!! - directory doesn't exist - guessing I have to make it on my own if this is desired!
@@ -614,6 +626,11 @@ endif()
         message ("Set ${func_name}_DESTDIR - value has been set to - ${${func_name}_DESTDIR}")
     endif()
 
+    message(STATUS "JSL2 - Before setting messages value of REQUIRE_OPENMP is ${REQUIRE_OPENMP} ")
+    set (${func_name}_OPENMP "")
+  
+    setopenmp(${func_name_cap} ${func_name})
+
     ExternalProject_Add(${func_name}
 	SOURCE_DIR "${GLOBAL1}/${func_name}"
 
@@ -625,6 +642,7 @@ endif()
           -DBUILD_INDEX=OFF
           -DBUILD_INDEX64_EXT_API=OFF
           -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+          ${${func_name}_OPENMP}
 #	  -DCMAKE_IN
 #	  -DCMAKE_Fortran_FLAGS=-m32
 #          -DCMAKE_C_FLAGS=-m32
@@ -780,6 +798,11 @@ endif()
       message ("Set ${func_name}_DESTDIR - value has been set to - ${${func_name}_DESTDIR}")
     endif()
 
+    message(STATUS "JSL2 - Before setting messages value of REQUIRE_OPENMP is ${REQUIRE_OPENMP} ")
+    set (${func_name}_OPENMP "")
+  
+    setopenmp(${func_name_cap} ${func_name})
+
     ExternalProject_Add(${func_name}
 
       SOURCE_DIR "${GLOBAL1}/${func_name}"
@@ -796,6 +819,7 @@ endif()
 #Scott suggests these should go to the include directory
 #        -DFORTRAN_MOD_DIR=${${func_name}_DESTDIR}/lib/fortran/modules
         -DFORTRAN_MOD_DIR=${${func_name}_DESTDIR}/include
+        ${${func_name}_OPENMP}
 
       CMAKE_CACHE_ARGS
         -DCMAKE_C_COMPILER:STRING=${CMAKE_C_COMPILER}
@@ -916,6 +940,8 @@ endif()
 
   function(now_really_build_fftw)
 
+    message(STATUS "JSL3 - Before setting messages value of REQUIRE_OPENMP is ${REQUIRE_OPENMP} ")
+
     set (func_name fftw)
     set (func_name_cap FFTW)
 
@@ -949,12 +975,16 @@ endif()
       set(${func_name}_build_type "--enable-debug")
     endif()
 
-    set (ADD_THE_ENABLE_OPENMP "")
-    if(${ENABLE_OPENMP})
-      message(STATUS "2. VALUE OF ENABLE_OPENMP is ${ENABLE_OPENMP}")
-      set (ADD_THE_ENABLE_OPENMP "-DENABLE_OPENMP=${ENABLE_OPENMP}")
-    endif()
-    message(STATUS "4. VALUE OF ADD_THE_ENABLE_OPENMP is ${ADD_THE_ENABLE_OPENMP}")
+    message(STATUS "JSL2 - Before setting messages value of REQUIRE_OPENMP is ${REQUIRE_OPENMP} ")
+    set (${func_name}_OPENMP "")
+  
+    setopenmp(${func_name_cap} ${func_name})
+#    set (ADD_THE_ENABLE_OPENMP "")
+#    if(${ENABLE_OPENMP})
+#      message(STATUS "2. VALUE OF ENABLE_OPENMP is ${ENABLE_OPENMP}")
+#      set (ADD_THE_ENABLE_OPENMP "-DENABLE_OPENMP=${ENABLE_OPENMP}")
+#    endif()
+    message(STATUS "4. VALUE OF ${func_name}_OPENMP is ${${func_name}_OPENMP}")
 
     ExternalProject_Add(${func_name}
 
@@ -974,7 +1004,8 @@ endif()
 #        -DCMAKE_INSTALL_INCLUDEDIR=${${func_name}_DESTDIR}/include/${func_name}
 	-DBUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
         -DENABLE_fortran:BOOL=ON
-        ${ADD_THE_ENABLE_OPENMP}
+        ${${func_name}_OPENMP}
+#        ${ADD_THE_ENABLE_OPENMP}
 
       CMAKE_CACHE_ARGS
 	-DCMAKE_C_COMPILER:STRING=${CMAKE_C_COMPILER}
@@ -1128,6 +1159,11 @@ endif()
       set(${func_name}_build_type "--enable-debug")
     endif()
 
+    message(STATUS "JSL2 - Before setting messages value of REQUIRE_OPENMP is ${REQUIRE_OPENMP} ")
+    set (${func_name}_OPENMP "")
+  
+    setopenmp(${func_name_cap} ${func_name})
+
     ExternalProject_Add(${func_name}
 
       SOURCE_DIR "${GLOBAL1}/${func_name}"
@@ -1136,6 +1172,7 @@ endif()
         "--prefix=${${func_name}_DESTDIR}"
         "--enable-shared=${BUILD_SHARED_LIBS}"
         "${${func_name}_build_type}"
+        ${${func_name}_OPENMP}
 
       CMAKE_ARGS
         -DCMAKE_INSTALL_PREFIX:PATH=${${func_name}_DESTDIR}
@@ -1258,6 +1295,11 @@ message(STATUS "JUST A TEST! - ${pre_func_name_cap} - HINTS - To LOOK IN ${CMAKE
 #      set(gsl_build_type "-d")
     endif()
 
+    message(STATUS "JSL2 - Before setting messages value of REQUIRE_OPENMP is ${REQUIRE_OPENMP} ")
+    set (${pre_func_name}_OPENMP "")
+  
+    setopenmp(${pre_func_name_cap} ${pre_func_name})
+
     ExternalProject_Add(${pre_func_name}
 
       SOURCE_DIR "${GLOBAL1}/${pre_func_name}"
@@ -1270,6 +1312,7 @@ message(STATUS "JUST A TEST! - ${pre_func_name_cap} - HINTS - To LOOK IN ${CMAKE
         "--disable-static"
 	"--disable-tests"
 	"${${pre_func_name}_build_type}"
+        "${${pre_func_name}_OPENMP}"
 
       CMAKE_ARGS
 	-DCMAKE_INSTALL_PREFIX:PATH=${${pre_func_name}_DESTDIR}
@@ -1378,6 +1421,11 @@ message(STATUS "JUST A TEST! - ${pre_func_name_cap} - HINTS - To LOOK IN ${CMAKE
 #    set(fgsl_build_type "--debug")
   endif()
 
+  message(STATUS "JSL2 - Before setting messages value of REQUIRE_OPENMP is ${REQUIRE_OPENMP} ")
+  set (${func_name}_OPENMP "")
+  
+  setopenmp(${func_name_cap} ${func_name})
+
   ExternalProject_Add(${func_name}
     SOURCE_DIR "${GLOBAL1}/${func_name}"
     CONFIGURE_COMMAND
@@ -1387,6 +1435,7 @@ message(STATUS "JUST A TEST! - ${pre_func_name_cap} - HINTS - To LOOK IN ${CMAKE
       "${${func_name}_fcflags}"
       "${${func_name}_pc_flags}"
       "${${func_name}_build_type}"
+      "${${func_name}_OPENMP}"
 
     CMAKE_ARGS
       -DBUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
@@ -1627,6 +1676,11 @@ endif()
     message(STATUS "Getting ready to set ${func_name}_DESTDIR to ${CMAKE_INSTALL_PREFIX}/${func_name}")
   endif()
 
+  message(STATUS "JSL2 - Before setting messages value of REQUIRE_OPENMP is ${REQUIRE_OPENMP} ")
+  set (${func_name}_OPENMP "")
+  
+  setopenmp(${func_name_cap} ${func_name})
+
   ExternalProject_Add(${func_name}
     SOURCE_DIR "${GLOBAL1}/${func_name}"
 
@@ -1636,6 +1690,7 @@ endif()
       -DCMAKE_Fortran_COMPILER:STRING=gfortran
       -DACC_CMAKE_VERSION=3.13.4
       -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+      ${${func_name}_OPENMP}
 
     CMAKE_CACHE_ARGS
       -DCMAKE_C_COMPILER:STRING=${CMAKE_C_COMPILER}
@@ -1763,6 +1818,11 @@ endif()
     set(${func_name}_build_type "--enable-debug")
   endif()
 
+  message(STATUS "JSL2 - Before setting messages value of REQUIRE_OPENMP is ${REQUIRE_OPENMP} ")
+  set (${func_name}_OPENMP "")
+  
+  setopenmp(${func_name_cap} ${func_name})
+
   ExternalProject_Add(${func_name}
 
     SOURCE_DIR "${GLOBAL1}/${func_name}"
@@ -1782,6 +1842,7 @@ endif()
       "--disable-php"
       "--disable-static"
       "${${func_name}_build_type}"
+      "${${func_name}_OPENMP}"
 
     CMAKE_ARGS
       -DBUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
@@ -1906,6 +1967,7 @@ endif()
         if(DEFINED CACHE{CMAKE_PRINT_DEBUG})
 	  message(STATUS "(package_map) Value of package - mapped name is ${package} - ${local_mapped_name}")
         endif()
+        message(STATUS "25 - VALUE OF REQUIRE_OPENMP is ${REQUIRE_OPENMP}") 
 endfunction()
 
 function(set_build_flags)
@@ -1915,6 +1977,14 @@ function(set_build_flags)
 if(DEFINED CACHE{CMAKE_PRINT_DEBUG})
   message(STATUS "In set_build_flags function()")
 endif()
+
+  message(STATUS "A - REQUIRE_OPENMP is ${REQUIRE_OPENMP}")
+  setup_openmp()
+  message(STATUS "B - REQUIRE_OPENMP is ${REQUIRE_OPENMP}")
+
+  # now that we have a global value for REQUIRE_OPENMP, we need to set it globally for outer (PARENT_SCOPE) scope
+  set(TMP_OPENMP ${REQUIRE_OPENMP})
+  set(REQUIRE_OPENMP ${TMP_OPENMP} PARENT_SCOPE)
 
   if (BUILD_ALL OR (NOT (BUILD_HDF5 OR BUILD_LAPACK OR BUILD_PLPLOT OR BUILD_FFTW OR BUILD_FGSL OR BUILD_LAPACK95 OR BUILD_XRAYLIB)))
     if (BUILD_ALL)
@@ -1941,9 +2011,145 @@ endif()
   foreach (PACKAGE HDF5 LAPACK PLPLOT FFTW FGSL LAPACK95 XRAYLIB) 
     if ( BUILD_${PACKAGE} )
       message(STATUS "\tBuilding package ${PACKAGE}")
+      requires_openmp(${PACKAGE})
     endif()
   endforeach()
-  message(STATUS "")
+  message(STATUS "Value of Check for fftw_devel is ${CHECK_FFTW_DEVEL} - and REQUIRE_OPENMP is ${REQUIRE_OPENMP}")
+#  set(REQUIRE_OPENMP ${REQUIRE_OPENMP} PARENT_SCOPE})
+endfunction()
 
-  message(STATUS "Value of Check for fftw_devel is ${CHECK_FFTW_DEVEL}")
+function(setup_openmp)
+  if (${BUILD_OPENMP})
+    message(STATUS "User has requested to build with openmp")
+#    set(REQUIRE_OPENMP True)
+#    set(REQUIRE_OPENMP True PARENT_SCOPE)
+    message("At this time, REQUIRE_OPENMP is ${REQUIRE_OPENMP}")
+
+    find_package(OpenMP)
+    if (OpenMP_FOUND)
+      message(STATUS "User has requested to build with openmp - openmp found - value is ${OpenMP_FOUND}")
+      set(HAVE_OPENMP True)
+      set(HAVE_OPENMP True PARENT_SCOPE)
+      set(REQUIRE_OPENMP True)
+      set(REQUIRE_OPENMP True PARENT_SCOPE)
+    else()
+      message(STATUS "User has requested to build with openmp - but openmp was not found")
+    endif()
+  else()
+    message(STATUS "No need to build with openmp - either passive - not set - or explicit - set to not build")
+  endif()
+endfunction()
+
+function (requires_openmp package_name)
+
+  message(STATUS "Checking for mp requirement for ${package_name} - REQUIRE_OPENMP is now ${REQUIRE_OPENMP}")
+
+  if (NOT ${REQUIRE_OPENMP} STREQUAL "True")
+    #do nothing
+  else()
+    set (NEED_OPENMP False)
+    if (${package_name} STREQUAL "junk")
+      message(STATUS "Testing mp for junk")
+# not quite sure if need to handle openmpi case
+#   elseif (${package_name} STREQUAL "OPENMPI")
+#      message(STATUS "Testing mp for junk")
+    elseif(${package_name} STREQUAL "FFTW")
+      set(NEED_OPENMP True)
+    elseif(${package_name} STREQUAL "FGSL")
+      set(NEED_OPENMP True)
+    elseif(${package_name} STREQUAL "HDF5")
+      set(NEED_OPENMP True)
+    elseif(${package_name} STREQUAL "GSL")
+      set(NEED_OPENMP True)
+    elseif(${package_name} STREQUAL "LAPACK")
+      set(NEED_OPENMP True)
+    elseif(${package_name} STREQUAL "XRAYLIB")
+      set(NEED_OPENMP True)
+    elseif(${package_name} STREQUAL "LAPACK")
+      set(NEED_OPENMP True)
+    else()
+      message(STATUS "No indication that ${package_name} requires openmp")
+    endif()
+
+    if (${NEED_OPENMP} STREQUAL True AND NOT ${HAVE_OPENMP} STREQUAL True)
+      message(STATUS "ABORTING CMAKE SETUP - USER REQUESTED TO BUILD WITH OPENMP")
+      message(STATUS "Package ${package_name} REQUIRES OPENMP - BUT - OPENMP WAS NOT FOUND ON THIS SYSTEM")
+      message(FATAL_ERROR "PLEASE CONTACT YOUR SYSTEM ADMINISTRATOR TO RESOLVE OPENMP ISSUE")
+    endif()
+  endif()
+
+endfunction()
+
+function (setopenmp package_name func_name)
+
+#  message(STATUS "JSL1 Require_openmp is ${REQUIRE_OPENMP}")
+  message(STATUS "setting up openmp value for ${func_name}_OPENMP")
+
+# initialize to blank value
+  set(${func_name}_OPENMP "" PARENT_SCOPE)
+  set(strValue "")
+
+  if (${package_name} STREQUAL "junk")
+
+    message(STATUS "Testing openmp for junk")
+    set(${func_name}_OPENMP ${strValue} PARENT_SCOPE)
+
+## not quite sure if need to handle openmpi case
+##   elseif (${package_name} STREQUAL "OPENMPI")
+##      message(STATUS "Testing mp for junk")
+
+  elseif(${package_name} STREQUAL "FFTW")
+
+    set(strValue "-DENABLE_OPENMP=${REQUIRE_OPENMP}")
+#      message(STATUS "JSL - Value is ${strValue}")
+    set(${func_name}_OPENMP ${strValue} PARENT_SCOPE)
+
+  elseif(${package_name} STREQUAL "FGSL")
+    set(strValue "--disable-openmp")
+    set(${func_name}_OPENMP ${strValue} PARENT_SCOPE)
+
+  elseif(${package_name} STREQUAL "HDF5")
+
+     message(STATUS "Not sure what OPENMP options exist for GSL!")
+#      set(strValue "-DENABLE_OPENMP=${REQUIRE_OPENMP}")
+#      set(${func_name}_OPENMP ${strValue} PARENT_SCOPE)
+
+  elseif(${package_name} STREQUAL "GSL")
+
+     message(STATUS "Not sure what OPENMP options exist for GSL!")
+#      set(strValue "-DENABLE_OPENMP=${REQUIRE_OPENMP}")
+#      set(${func_name}_OPENMP ${strValue} PARENT_SCOPE)
+
+  elseif(${package_name} STREQUAL "LAPACK")
+
+# not sure if this is right - maybe should set FFLAGS to be -fopenmp?
+    set(strValue "-D_OPENMP=${REQUIRE_OPENMP}")
+    set(${func_name}_OPENMP ${strValue} PARENT_SCOPE)
+
+  elseif(${package_name} STREQUAL "XRAYLIB")
+
+    if (${REQUIRE_OPENMP} STREQUAL False)
+      set(strValue "")
+    else()
+      set(strValue "")
+    endif()
+    set(${func_name}_OPENMP ${strValue} PARENT_SCOPE)
+
+  elseif(${package_name} STREQUAL "LAPACK")
+
+    set(strValue "-DENABLE_OPENMP=${REQUIRE_OPENMP}")
+    set(${func_name}_OPENMP ${strValue} PARENT_SCOPE)
+
+  else()
+    message(STATUS "No value set for handling ${package_name} for openmp")
+#
+##    set (ADD_THE_ENABLE_OPENMP "")
+##    if(${ENABLE_OPENMP})
+##      message(STATUS "2. VALUE OF ENABLE_OPENMP is ${ENABLE_OPENMP}")
+##      set (ADD_THE_ENABLE_OPENMP "-DENABLE_OPENMP=${ENABLE_OPENMP}")
+
+  endif()
+
+  message(STATUS "OPENMP SETTING - ${func_name} package using a value of ${strValue}")
+
 endfunction()

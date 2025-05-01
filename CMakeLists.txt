@@ -145,6 +145,10 @@ message(STATUS "VALUE OF CMAKE_INSTALL_PREFIX IS ${CMAKE_INSTALL_PREFIX} ")
     message (STATUS "No value given for CMAKE_INSTALL_PREFIX - defaulting to $ENV{HOME}/bmad/external")
   endif()
 
+  if(CUSER_FORCE)
+#   message(STATUS "User has set a value for CUSER_FORCE of ${CUSER_FORCE}")   
+  endif()
+
 #if(DEFINED CACHE{CMAKE_PRINT_DEBUG})
   if(CMAKE_PRINT_DEBUG)
     message (STATUS "Global variable file is ${GLOBAL_VARIABLE_FILE}")
@@ -161,6 +165,9 @@ message(STATUS "VALUE OF CMAKE_INSTALL_PREFIX IS ${CMAKE_INSTALL_PREFIX} ")
   endif()
 
   message(STATUS "CMAKE_PREFIX_PATH IS NOW ${CMAKE_PREFIX_PATH}")
+
+  set(REQUIRE_OPENMP False)
+  set(HAVE_OPENMP False)
 
 #return()
 
@@ -201,7 +208,8 @@ set(LIST_OF_PATHS ${CMAKE_PREFIX_PATH})
   option(BUILD_PLPLOT "Build plplot" OFF)
   option(BUILD_XRAYLIB "Build xraylib" OFF)
   option(BUILD_FFTW "Build fftw" OFF)
-#  option(BUILD_OPENMPI "Build openmpi" OFF)
+#  option(BUILD_OPENMPI "Build with openmpi" OFF)
+  option(BUILD_OPENMPI "Enable openmpi" OFF)
   option(BUILD_ALL "Build all" OFF)
 
   option(BUILD_ANYWAY "Build all packages - or the specified ones - even if they are available on the system!" OFF)
@@ -236,7 +244,9 @@ list(APPEND EXT_LIBS h5cc lapack plplot fftw fgsl lapack95 xraylib)
 
 #	message(STATUS "invoked locally (building external packages - whichever ones are not available)")	
 
-    set_build_flags()
+   set_build_flags()
+
+   message(STATUS "JSL95 - value is ${REQUIRE_OPENMP}")
 
     # first go through all of our libraries that we handle and see if any are set
     # if BUILD_ALL is set, we BUILD_ALL
@@ -255,6 +265,7 @@ endif()
         continue()
       else()
         message(STATUS "We need to build ${PACKAGE} ${package_name}")
+        message(STATUS "In install_package latest value of REQUIRE_OPENMP is ${REQUIRE_OPENMP}")
       endif()
 
       set (VAR1 ${PACKAGE})

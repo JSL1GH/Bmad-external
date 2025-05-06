@@ -1,0 +1,17 @@
+function(mymessage messagelevel messagemode messagetext)
+
+#if (${GLOBAL_CMAKE_MESSAGE_LEVEL} GREATER 4)
+#  message(STATUS "message has a messagelevel of ${messagelevel} and user cmake has asked for messages with a level of ${GLOBAL_CMAKE_MESSAGE_LEVEL}")
+#endif()
+
+  # Perform a mathematical calculation
+#  message(STATUS "Working on: ${messagelevel} <= ${GLOBAL_CMAKE_MESSAGE_LEVEL}")
+
+if (${messagelevel} LESS_EQUAL ${GLOBAL_CMAKE_MESSAGE_LEVEL})
+#if (${messagelevel} GREATER ${GLOBAL_CMAKE_MESSAGE_LEVEL})
+  message(${messagemode} "${messagetext}")
+else()
+#  message(${messagemode} "Would not write the message - ${messagetext}")
+endif()
+
+endfunction()

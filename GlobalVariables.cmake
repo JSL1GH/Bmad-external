@@ -7,7 +7,7 @@
 
   if(DEFINED CACHE{CMAKE_PRINT_DEBUG})
     # but not ${BMAD_EXTERNAL_PACKAGES} - need to understand
-    mymessage(5 "All of the packages to be built can be found at ${CMAKE_ROLLOUT_CMAKE_FILES}/bmad-external-packages and ${BMAD_EXTERNAL_PACKAGES}")
+    mymessage(5 STATUS "All of the packages to be built can be found at ${CMAKE_ROLLOUT_CMAKE_FILES}/bmad-external-packages and ${BMAD_EXTERNAL_PACKAGES}")
   endif()
 
 #  message("At this time, REQUIRE_OPENMP is ${REQUIRE_OPENMP}")

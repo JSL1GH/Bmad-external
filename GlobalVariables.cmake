@@ -1,5 +1,5 @@
   if(DEFINED CACHE{CMAKE_PRINT_DEBUG})
-    mymessage (5 STATUS "This is the GlobalVariables.cmake file that was included - it contains global definitions!")
+    mymessage(5 STATUS "This is the GlobalVariables.cmake file that was included - it contains global definitions!")
   endif()
 
   set_property(GLOBAL PROPERTY BMAD_EXTERNAL_PACKAGES "${CMAKE_ROLLOUT_CMAKE_FILES}/bmad-external-packages")
@@ -20,7 +20,7 @@
     if(DEFINED CACHE{CMAKE_PRINT_DEBUG})
 #      message("1. The string is not a full path. - setting with path - '${CMAKE_CURRENT_SOURCE_DIR}/${CMAKE_INSTALL_PREFIX}' - '${CMAKE_INSTALL_PREFIX}'")
     endif()
-    mymessage(3 "Setting CMAKE_INSTALL_PREFIX TO SOURCE_DIR/INSTALL_PREFIX")
+    mymessage(3 STATUS "Setting CMAKE_INSTALL_PREFIX TO SOURCE_DIR/INSTALL_PREFIX")
     set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/${CMAKE_INSTALL_PREFIX})
     if(DEFINED CACHE{CMAKE_PRINT_DEBUG})
 #      message("2. The string is not a full path. - setting with path - '${CMAKE_INSTALL_PREFIX}'")
@@ -30,8 +30,8 @@
   set_property(GLOBAL PROPERTY EXTERNAL_BMAD_DIRECTORY ${BUILD_DIR})
 
   if(DEFINED CACHE{CMAKE_PRINT_DEBUG})
-    mymessage (5 STATUS "CMAKE INSTALL DIRECTORY IS '${CMAKE_INSTALL_PREFIX}'")
-    mymessage (5 STATUS "SETTING EXTERNAL_BMAD_DIRECTORY to value of ${BUILD_DIR}")
+    mymessage(5 STATUS "CMAKE INSTALL DIRECTORY IS '${CMAKE_INSTALL_PREFIX}'")
+    mymessage(5 STATUS "SETTING EXTERNAL_BMAD_DIRECTORY to value of ${BUILD_DIR}")
   endif()
 
 # Scott suggests user can add this to their INSTALL_PREFIX
@@ -62,15 +62,15 @@
 
   #  set (CMAKE_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX}/${APPEND_BUILD_TYPE})
   if(DEFINED CACHE{CMAKE_PRINT_DEBUG})
-    mymessage (5 STATUS "2. CMAKE INSTALL DIRECTORY IS '${CMAKE_INSTALL_PREFIX}'")
-    mymessage (5 STATUS "2. SETTING EXTERNAL_BMAD_DIRECTORY to value of ${BUILD_DIR}")
+    mymessage(5 STATUS "2. CMAKE INSTALL DIRECTORY IS '${CMAKE_INSTALL_PREFIX}'")
+    mymessage(5 STATUS "2. SETTING EXTERNAL_BMAD_DIRECTORY to value of ${BUILD_DIR}")
   endif()  
 
   set(INSTALL_IN_SEPARATE_DIRS 0)
 #set_property(GLOBAL PROPERTY INSTALL_IN_SEPARATE_DIRS 0)
 
   if(DEFINED CACHE{CMAKE_SEPARATE_DIRS})
-    mymessage (1 STATUS "BUILD REQUESTED TO PUT EACH LIBRARY IN ITS OWN SEPARATE DIRECTORY")
+    mymessage(1 STATUS "BUILD REQUESTED TO PUT EACH LIBRARY IN ITS OWN SEPARATE DIRECTORY")
     set(INSTALL_IN_SEPARATE_DIRS 1)
   endif()
 
@@ -167,7 +167,7 @@
         mymessage(2 STATUS "User wants to build ${func_name_cap} even if already installed")
         now_really_build_hdf5()
       else()
-	mymessage(STATUS "5 Checking to see if we should build ${func_name_cap} - will not build if it is already installed")
+	mymessage(5 STATUS "Checking to see if we should build ${func_name_cap} - will not build if it is already installed")
 
         # set hdf5_DESTDIR to have install directory by default
         set(${func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX})
@@ -283,7 +283,7 @@
 	INSTALL_COMMAND make install
     )
 
-    mymessage (3 STATUS "Set ${func_name}_DESTDIR - value After ExternalProject_Add is now - ${${func_name}_DESTDIR}")
+    mymessage(3 STATUS "Set ${func_name}_DESTDIR - value After ExternalProject_Add is now - ${${func_name}_DESTDIR}")
 
     install(
       DIRECTORY
@@ -367,7 +367,7 @@
 	set (${packagename_lc}_DESTDIR ${CMAKE_INSTALL_PREFIX}/${packagename_lc} PARENT_SCOPE)
     endif()
 
-    mymessage (3 STATUS "Values - global1 ${GLOBAL1} global2 - Set ${packagename_lc}_DESTDIR - value has been set to - ${${packagename_lc}_DESTDIR}")
+    mymessage(3 STATUS "Values - global1 ${GLOBAL1} global2 - Set ${packagename_lc}_DESTDIR - value has been set to - ${${packagename_lc}_DESTDIR}")
 
 #    message(STATUS "JSL2 - Before setting messages value of REQUIRE_OPENMP is ${REQUIRE_OPENMP} ")
     set (${packagename_lc}_OPENMP "")
@@ -428,7 +428,7 @@
 	INSTALL_COMMAND make install
 	)
 
-    mymessage (3 STATUS "Set ${func_name}_DESTDIR - value After ExternalProject_Add is now - ${${func_name}_DESTDIR}")
+    mymessage(3 STATUS "Set ${func_name}_DESTDIR - value After ExternalProject_Add is now - ${${func_name}_DESTDIR}")
 
     install(
         DIRECTORY
@@ -507,7 +507,7 @@
       INSTALL_COMMAND make install
     )
 
-    mymessage (3 STATUS "Set ${func_name}_DESTDIR - value After ExternalProject_Add is now - ${${func_name}_DESTDIR}")
+    mymessage(3 STATUS "Set ${func_name}_DESTDIR - value After ExternalProject_Add is now - ${${func_name}_DESTDIR}")
 
     install(
       DIRECTORY
@@ -580,7 +580,7 @@
       INSTALL_COMMAND make install
     )
 
-    mymessage (3 STATUS "Set ${func_name}_DESTDIR - value After ExternalProject_Add is now - ${${func_name}_DESTDIR}")
+    mymessage(3 STATUS "Set ${func_name}_DESTDIR - value After ExternalProject_Add is now - ${${func_name}_DESTDIR}")
 
     install(
         DIRECTORY
@@ -719,8 +719,8 @@
       set (${func_name}_DESTDIR ${CMAKE_INSTALL_PREFIX}/${func_name} PARENT_SCOPE)
     endif()
 
-    mymessage (STATUS 3 "Set ${pre_func_name}_DESTDIR - value has been set to - ${${pre_func_name}_DESTDIR}")
-    mymessage (STATUS 3 "Set ${func_name}_DESTDIR - value has been set to - ${${func_name}_DESTDIR}")
+    mymessage(3 STATUS "Set ${pre_func_name}_DESTDIR - value has been set to - ${${pre_func_name}_DESTDIR}")
+    mymessage(3 STATUS "Set ${func_name}_DESTDIR - value has been set to - ${${func_name}_DESTDIR}")
 
     set(NEED_TO_BUILD_GSL 0)
     #  set ${func_name}_DESTDIR to have install directory by default
@@ -801,7 +801,7 @@
         INSTALL_COMMAND make install
       )
 
-      mymessage (3 STATUS "Set ${pre_func_name}_DESTDIR - value After ExternalProject_Add is now - ${${pre_func_name}_DESTDIR}")
+      mymessage(3 STATUS "Set ${pre_func_name}_DESTDIR - value After ExternalProject_Add is now - ${${pre_func_name}_DESTDIR}")
 
       install(
         DIRECTORY
@@ -831,14 +831,14 @@
     mymessage(3 STATUS "Finished setting up the build needed for ${pre_func_name}")
 
     if(EXISTS ENV{PKG_CONFIG_PATH})
-      mymessage (3 STATUS "pkg_config_path does exist")
+      mymessage(3 STATUS "pkg_config_path does exist")
       set(${func_name}_pc_flags "PKG_CONFIG_PATH=${CMAKE_INSTALL_PREFIX}/${pre_func_name}/lib/pkgconfig:$ENV{PKG_CONFIG_PATH}")
     else()
-      mymessage (3 STATUS "pkg_config_path does not exist")
+      mymessage(3 STATUS "pkg_config_path does not exist")
       set(${func_name}_pc_flags "PKG_CONFIG_PATH=${CMAKE_INSTALL_PREFIX}/${pre_func_name}/lib/pkgconfig")
     endif()
 
-    mymessage (2 STATUS "Starting setup of ${func_name}")
+    mymessage(2 STATUS "Starting setup of ${func_name}")
 
     if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
       set(${func_name}_fcflags "-ffree-line-length-none")
@@ -915,7 +915,7 @@
       INSTALL_COMMAND make install
     )
 
-    mymessage (3 STATUS "Set ${func_name}_DESTDIR - value After ExternalProject_Add is now - ${${func_name}_DESTDIR}")
+    mymessage(3 STATUS "Set ${func_name}_DESTDIR - value After ExternalProject_Add is now - ${${func_name}_DESTDIR}")
 
     if (${NEED_TO_BUILD_GSL} EQUAL 1)
       mymessage(3 STATUS "If we had to build our own ${pre_func_name} - Set up dependency for ${func_name} - it depends on ${pre_func_name}!")
@@ -1002,9 +1002,9 @@
     get_property(GLOBAL2 GLOBAL PROPERTY EXTERNAL_BMAD_SOURCE_DIRECTORY)
     get_property(GLOBAL1 GLOBAL PROPERTY BMAD_EXTERNAL_PACKAGES)
   
-    mymessage (1 STATUS "For ${func_name} - will place  ${CMAKE_ROLLOUT_CMAKE_FILES}/${func_name_cap}_CMakeLists.txt file into ... ${GLOBAL1}/${func_name} and then rename it to ${GLOBAL1}/${func_name_cap}_CMakeLists.txt")
+    mymessage(1 STATUS "For ${func_name} - will place  ${CMAKE_ROLLOUT_CMAKE_FILES}/${func_name_cap}_CMakeLists.txt file into ... ${GLOBAL1}/${func_name} and then rename it to ${GLOBAL1}/${func_name_cap}_CMakeLists.txt")
   
-    mymessage (1 STATUS "Values: rename -  ${CMAKE_ROLLOUT_CMAKE_FILES}/${func_name_cap}_CMakeLists.txt   -  ${GLOBAL1}/${func_name}/CMakeLists.txt")
+    mymessage(1 STATUS "Values: rename -  ${CMAKE_ROLLOUT_CMAKE_FILES}/${func_name_cap}_CMakeLists.txt   -  ${GLOBAL1}/${func_name}/CMakeLists.txt")
 
     file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/${func_name_cap}_CMakeLists.txt DESTINATION ${GLOBAL1}/${func_name})
     file(RENAME ${GLOBAL1}/${func_name}/${func_name_cap}_CMakeLists.txt ${GLOBAL1}/${func_name}/CMakeLists.txt)
@@ -1043,7 +1043,7 @@
       INSTALL_COMMAND make install
     )
 
-    mymessage (3 STATUS "Set ${func_name}_DESTDIR - value After ExternalProject_Add is now - ${${func_name}_DESTDIR}")
+    mymessage(3 STATUS "Set ${func_name}_DESTDIR - value After ExternalProject_Add is now - ${${func_name}_DESTDIR}")
 	
     install(
       DIRECTORY
@@ -1086,9 +1086,9 @@
     set(${func_name}_autoreconfdir "${CMAKE_CURRENT_BINARY_DIR}/${func_name}-prefix")
   
     if(EXISTS ${GLOBAL1}/${func_name}/configure.ac)
-      mymessage (4 STATUS "Directory ${GLOBAL1}/${func_name} does exist!")
+      mymessage(4 STATUS "Directory ${GLOBAL1}/${func_name} does exist!")
     else()
-      message (1 STATUS "Directory ${GLOBAL1}/${func_name} does not exist")
+      mymessage(1 STATUS "Directory ${GLOBAL1}/${func_name} does not exist")
     endif()
   
     execute_process(

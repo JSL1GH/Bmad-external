@@ -88,7 +88,7 @@
 
 #  if(DEFINED CACHE{CMAKE_PRINT_DEBUG})
   if(DEFINED CACHE{CMAKE_INSTALL_PREFIX})
-    mymessage (2 STATUS "User has decided to set '${CMAKE_INSTALL_PREFIX}' as the installation area")
+    mymessage(2 STATUS "User has decided to set '${CMAKE_INSTALL_PREFIX}' as the installation area")
   endif()
 
 #set(CMAKE_INSTALL_PREFIX ${CMAKE_INSTALL_EXTERNAL_PREFIX})
@@ -110,14 +110,14 @@
    # IF VALUE IS /usr/local, it means user did not supply a value - CMAKE DEFAULTS TO /usr/local!
    # therefore, we continue as if user supplied a value of $ENV{HOME}/bmad/external
     if (${CMAKE_INSTALL_PREFIX} STREQUAL "/usr/local")
-      mymessage(STATUS 2 "User did not set a value (or set a value of '/usr/local)' for CMAKE_INSTALL_PREFIX - defaulting to $ENV{HOME}/bmad/external")
+      mymessage(2 STATUS "User did not set a value (or set a value of '/usr/local)' for CMAKE_INSTALL_PREFIX - defaulting to $ENV{HOME}/bmad/external")
       set(CMAKE_INSTALL_PREFIX $ENV{HOME}/bmad/external)
       # now check again to see if the new value we just set - exists 
       if (EXISTS "${CMAKE_INSTALL_PREFIX}")
          # did user supply force 
 	if(CUSER_FORCE)
 	    #      message (STATUS "Directory path '${CMAKE_INSTALL_PREFIX}' already exists - user supplied force option! ('-force')")
-	  mymessage (4 STATUS "Directory path '${CMAKE_INSTALL_PREFIX}' already exists - user supplied force option! ('-force') - continuing and building into it")
+	  mymessage(4 STATUS "Directory path '${CMAKE_INSTALL_PREFIX}' already exists - user supplied force option! ('-force') - continuing and building into it")
 	else()
           message (FATAL_ERROR "Directory path '${CMAKE_INSTALL_PREFIX}' already exists - please modify or supply a build flag to override - in order continue installation ('-DCUSER_FORCE=true)...cancel'")
 #         message (FATAL_ERROR "Directory path")
@@ -130,7 +130,7 @@
       mymessage(3 STATUS "User has set a value of ${CMAKE_INSTALL_PREFIX}")
     endif()
   else()   
-    mymessage (2 STATUS "No value given for CMAKE_INSTALL_PREFIX - defaulting to $ENV{HOME}/bmad/external")
+    mymessage(2 STATUS "No value given for CMAKE_INSTALL_PREFIX - defaulting to $ENV{HOME}/bmad/external")
   endif()
 
   if(CUSER_FORCE)
@@ -139,8 +139,8 @@
 
 #if(DEFINED CACHE{CMAKE_PRINT_DEBUG})
   if(CMAKE_PRINT_DEBUG)
-    mymessage (5 STATUS "Global variable file is ${GLOBAL_VARIABLE_FILE}")
-    mymessage (4 STATUS "CMAKE_INSTALL_PREFIX variable file is ${CMAKE_INSTALL_PREFIX}")
+    mymessage(5 STATUS "Global variable file is ${GLOBAL_VARIABLE_FILE}")
+    mymessage(4 STATUS "CMAKE_INSTALL_PREFIX variable file is ${CMAKE_INSTALL_PREFIX}")
   endif()
 
 
@@ -158,7 +158,7 @@
   set(HAVE_OPENMP False)
 
   if(DEFINED CACHE{CMAKE_PRINT_DEBUG})
-    mymessage (4 STATUS "Including a file that has all of our global definitions - '${GLOBAL_VARIABLE_FILE}'")
+    mymessage(4 STATUS "Including a file that has all of our global definitions - '${GLOBAL_VARIABLE_FILE}'")
   endif()
 
   include (${GLOBAL_VARIABLE_FILE})
@@ -168,7 +168,7 @@
 #return()
 
   get_property(GLOBAL1 GLOBAL PROPERTY EXTERNAL_BMAD_DIRECTORY)
-  mymessage (4 STATUS "In external-project/Value of global variable (EXTERNAL_BMAD_DIRECTORY) is '${GLOBAL1}'")
+  mymessage(4 STATUS "In external-project/Value of global variable (EXTERNAL_BMAD_DIRECTORY) is '${GLOBAL1}'")
 
 #JSL - COMMENTING OUT 11/5/2024 - needed?
 #set_property (GLOBAL PROPERTY LIST_OF_PATHS /Users/jlaster/.bmad_external1)
@@ -307,18 +307,18 @@ set(LIST_OF_PATHS ${CMAKE_PREFIX_PATH})
         set(NEED_TO_INSTALL_PACKAGE 1)
       endif()
     else()
-      mymessage (2 STATUS "We did did not find package (CMake built-in search - next will try to use our custom Find search) ${VAR1} - building" )
+      mymessage(2 STATUS "We did did not find package (CMake built-in search - next will try to use our custom Find search) ${VAR1} - building" )
       set(NEED_TO_INSTALL_PACKAGE 1)
     endif()
     if (${NEED_TO_INSTALL_PACKAGE})
      # let's check if we have the package in our local bmad area - ~/.bmad_external
-      mymessage (2 STATUS "Now our custom build package for ${VAR1}")
+      mymessage(2 STATUS "Now our custom build package for ${VAR1}")
       if (${PACKAGE} STREQUAL "h5cc")
         mymessage(2 STATUS "Package is h5cc - attempting to install hdf5 instead")
 	set (VAR1 "hdf5")
       else()	
       endif()
-      mymessage (2 STATUS "- Now attempting to install packages ${VAR1}")			
+      mymessage(2 STATUS "- Now attempting to install packages ${VAR1}")			
       install_package(${VAR1})
     endif()
   endforeach()

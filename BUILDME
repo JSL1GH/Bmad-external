@@ -1,7 +1,9 @@
 INSTALLATION
+___________________________
+BMAD_EXTERNAL
 
 /bin/bash
-MY_INSTALL_DIR="bmad.4.24.2025.1525"
+MY_INSTALL_DIR="bmad.5.6.2025.1525"
 FAVORITE_BMAD_PATH="Projects"
 BASE_PATH="${HOME}/${FAVORITE_BMAD_PATH}"
 BASE_PATH_AND_INSTALL_DIR="${BASE_PATH}/${MY_INSTALL_DIR}"
@@ -11,8 +13,65 @@ git clone git@github.com:JSL1GH/Bmad-external.git --recurse-submodules
 cd Bmad-external
 mkdir buildhere
 cd buildhere
-cmake ..
+cmake -DCUSER_FORCE=True -DCMAKE_INSTALL_PREFIX=/home/cfsd/laster/bmad/production_5.6.2025.1600 -DCMAKE_PRINT_DEBUG=ON -DGLOBAL_CMAKE_MESSAGE_LEVEL=4 ..
 make
+
+___________________________
+BMAD_ECOSYSTEM
+
+/bin/bash
+MY_INSTALL_DIR="bmad.5.6.2025.1525"
+FAVORITE_BMAD_PATH="Projects"
+BASE_PATH="${HOME}/${FAVORITE_BMAD_PATH}"
+BASE_PATH_AND_INSTALL_DIR="${BASE_PATH}/${MY_INSTALL_DIR}"
+#mkdir ${BASE_PATH_AND_INSTALL_DIR}
+cd ${BASE_PATH_AND_INSTALL_DIR}
+git clone git@github.com:bmad-sim/bmad-ecosystem.git
+cd bmad-ecosystem
+export BMAD_USER_PREFS=${BASE_PATH_AND_INSTALL_DIR}/bmad-ecosystem/bmad_jsl_user_prefs
+source util/dist_source_me
+util/dist_build_production
+
+
+Contents of: ${BASE_PATH_AND_INSTALL_DIR}/bmad-ecosystem/bmad_jsl_user_prefs
+
+____
+export BMAD_USER_INC_DIRS="/home/cfsd/laster/bmad/production_5.6.2025.1600/include"
+export BMAD_USER_LIB_DIRS="/home/cfsd/laster/bmad/production_5.6.2025.1600/lib"
+#export ACC_ENABLE_OPENMP="N"
+export ACC_SET_GMAKE_JOBS=8
+export ACC_ENABLE_OPENMP="Y"
+export ACC_ENABLE_MPI="N"
+export ACC_PLOT_PACKAGE="plplot"
+#export ACC_ENABLE_SHARED="Y"
+export ACC_ENABLE_FPIC="Y"
+
+# pull out the dependency in ACC_BMAD_LINK_LIBS in build_flags_config of it requiring fftw3_omp
+# Set base Bmad Library Linker Flags as updated by dcs16 in RT#56661 and RT#60825
+#export ACC_BMAD_LINK_LIBS="xrlf03;xrl;forest;fgsl;gsl;gslcblas;lapack95;lapack;blas;hdf5hl_fortran;hdf5_hl;hdf5_fortran;hdf5;fftw3;fftw3_omp"
+export ACC_BMAD_LINK_LIBS="xrlf03;xrl;forest;fgsl;gsl;gslcblas;lapack95;lapack;blas;hdf5hl_fortran;hdf5_hl;hdf5_fortran;hdf5;fftw3"
+____
+
+
+___________________________
+BMAD_RUNTESTS
+
+/bin/bash
+MY_INSTALL_DIR="bmad.5.6.2025.1525"
+FAVORITE_BMAD_PATH="Projects"
+BASE_PATH="${HOME}/${FAVORITE_BMAD_PATH}"
+BASE_PATH_AND_INSTALL_DIR="${BASE_PATH}/${MY_INSTALL_DIR}"
+#mkdir ${BASE_PATH_AND_INSTALL_DIR}
+cd ${BASE_PATH_AND_INSTALL_DIR}
+cd bmad-ecosystem
+export BMAD_USER_PREFS=${BASE_PATH_AND_INSTALL_DIR}/bmad-ecosystem/bmad_jsl_user_prefs
+source util/dist_source_me
+cd regression_tests
+./scripts/run_tests.py
+
+___________________________
+
+
 
 
 OPTIONS
@@ -56,14 +115,16 @@ OWN_FINDPACKAGE [ON|OFF] - defaults to ON - this should always be used - our own
 
 OWN_FIND_ALL_PACKAGE [ON|OFF] - defaults to OFF - should not be necessary - as cmake should have this support already there - but a user may elect to use our home grown version - but caveat emptor
 
+GLOBAL_CMAKE_MESSAGE_LEVEL [1|2|3|4|5] - defaults to 1 (very little output) - the higher the number, the more diagnostics printed out during the cmake step of the build.
+
 
 Note:
 
-For repeated builds, be sure to clear the 'cmake cache' by removing the Bmad-external/buildhere/CMakeCache.txt file (of course, buildhere is the directory I used in my example install above - please change accordingly)
+For repeated builds, be sure to:
+1) clear the 'cmake cache' by removing the Bmad-external/buildhere/CMakeCache.txt file (of course, buildhere is the directory I used in my example install above - please change accordingly)
+2) perform a 'make clean' for local clearing as well
+
 If the cache is not cleared, cmake will use any new options, along with any options (unless overridden with the new cmake) that existed from the last cmake build.
-
-
-
 
 
 

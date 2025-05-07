@@ -39,7 +39,7 @@
 
   set(BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR})
 
-  option(GLOBAL_CMAKE_MESSAGE_LEVEL, "message level for which messages are printed during cmake step - the lower the number, the more that is printed (1-5)")
+  option(GLOBAL_CMAKE_MESSAGE_LEVEL, "message level for which messages are printed during cmake step - the bigger the number, the more that is printed (1-5)")
   if (DEFINED GLOBAL_CMAKE_MESSAGE_LEVEL)
 # use user supplied value
     set(GLOBAL_CMAKE_MESSAGE_LEVEL ${GLOBAL_CMAKE_MESSAGE_LEVEL})

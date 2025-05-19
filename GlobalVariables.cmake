@@ -782,7 +782,7 @@
         CONFIGURE_COMMAND
 
           "${GLOBAL1}/${pre_func_name}/configure"
-          "--prefix=${${pre_func_name}_DESTDIR}"
+	  "--prefix=${${pre_func_name}_DESTDIR}"
           "--enable-shared"
           "--disable-static"
   	  "--disable-tests"
@@ -852,7 +852,8 @@
       set (${func_name}_fcflags "FCFLAGS=${CMAKE_Fortran_FLAGS} ${${func_name}_fcflags}")
     endif()
 
-    set(${func_name}_pc_flags "PKG_CONFIG_PATH=${CMAKE_CURRENT_BINARY_DIR}/${pre_func_name}-prefix/src/${pre_func_name}-build:$ENV{PKG_CONFIG_PATH}")
+    #    set(${func_name}_pc_flags "PKG_CONFIG_PATH=${CMAKE_CURRENT_BINARY_DIR}/${pre_func_name}-prefix/src/${pre_func_name}-build:$ENV{PKG_CONFIG_PATH}")
+    set(${func_name}_pc_flags "PKG_CONFIG_PATH=/nfs/acc/libs/Linux_x86_64_intel/packages_2025_0208_d/production/lib")
 
     mymessage(4 STATUS "Defining ExternalProject_Add for ${func_name}")
 
@@ -892,12 +893,20 @@
 
     set (${func_name}_OPENMP "")
     setopenmp(${func_name_cap} ${func_name})
-  
+
+    set(gsl_LIBS "/nfs/acc/libs/Linux_x86_64_intel/packages_2025_0208_d/production/lib")
+#   set(ENV{gsl_LIBS} "/nfs/acc/libs/Linux_x86_64_intel/packages_2025_0208_d/production")
+    set(gsl_CFLAGS "-I/nfs/acc/libs/Linux_x86_64_intel/packages_2025_0208_d/production/include")
+
+    
     ExternalProject_Add(${func_name}
       SOURCE_DIR "${GLOBAL1}/${func_name}"
       CONFIGURE_COMMAND
         "${GLOBAL1}/${func_name}/configure"
-        "--prefix=${${func_name}_DESTDIR}"
+	"--prefix=${${func_name}_DESTDIR}"
+	#	"--prefix=/nfs/acc/libs/Linux_x86_64_intel/packages_2025_0208_d/production"
+	"gsl_LIBS=${gsl_LIBS}"
+	"gsl_CFLAGS=${gsl_CFLAGS}"
         "--disable-static"
         "${${func_name}_fcflags}"
         "${${func_name}_pc_flags}"
@@ -914,6 +923,8 @@
       BUILD_COMMAND make -j 1
       INSTALL_COMMAND make install
     )
+
+    mymessage(3 STATUS "Value of the environment variable gsl_libs is $ENV{gsl_LIBS} - $ENV{gsl_CFLAGS}")
 
     mymessage(3 STATUS "Set ${func_name}_DESTDIR - value After ExternalProject_Add is now - ${${func_name}_DESTDIR}")
 

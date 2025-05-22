@@ -1,6 +1,6 @@
 
 #do not expect a lapack95 header file
-find_path(lapack95_INCLUDE_DIR NAMES lapack95.mod f95_lapack.mod ${CMAKE_MODULE_PATH}/include/lapack95)
+find_path(lapack95_INCLUDE_DIR NAMES f95_lapack.mod ${CMAKE_MODULE_PATH}/include/lapack95)
 #find_library(lapack95_LIBRARY lapack95)
 #find_path(lapack95_INCLUDE_DIR lapack95.h)
 #find_library(lapack95_LIBRARY lapack95)

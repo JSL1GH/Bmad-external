@@ -852,8 +852,8 @@
       set (${func_name}_fcflags "FCFLAGS=${CMAKE_Fortran_FLAGS} ${${func_name}_fcflags}")
     endif()
 
-    #    set(${func_name}_pc_flags "PKG_CONFIG_PATH=${CMAKE_CURRENT_BINARY_DIR}/${pre_func_name}-prefix/src/${pre_func_name}-build:$ENV{PKG_CONFIG_PATH}")
-    set(${func_name}_pc_flags "PKG_CONFIG_PATH=/nfs/acc/libs/Linux_x86_64_intel/packages_2025_0208_d/production/lib")
+    set(${func_name}_pc_flags "PKG_CONFIG_PATH=${CMAKE_CURRENT_BINARY_DIR}/${pre_func_name}-prefix/src/${pre_func_name}-build:$ENV{PKG_CONFIG_PATH}")
+#    set(${func_name}_pc_flags "PKG_CONFIG_PATH=/nfs/acc/libs/Linux_x86_64_intel/packages_2025_0208_d/production/lib")
 
     mymessage(4 STATUS "Defining ExternalProject_Add for ${func_name}")
 
@@ -894,9 +894,9 @@
     set (${func_name}_OPENMP "")
     setopenmp(${func_name_cap} ${func_name})
 
-    set(gsl_LIBS "/nfs/acc/libs/Linux_x86_64_intel/packages_2025_0208_d/production/lib")
-#   set(ENV{gsl_LIBS} "/nfs/acc/libs/Linux_x86_64_intel/packages_2025_0208_d/production")
-    set(gsl_CFLAGS "-I/nfs/acc/libs/Linux_x86_64_intel/packages_2025_0208_d/production/include")
+#    set(gsl_LIBS "/nfs/acc/libs/Linux_x86_64_intel/packages_2025_0208_d/production/lib")
+##   set(ENV{gsl_LIBS} "/nfs/acc/libs/Linux_x86_64_intel/packages_2025_0208_d/production")
+#    set(gsl_CFLAGS "-I/nfs/acc/libs/Linux_x86_64_intel/packages_2025_0208_d/production/include")
 
     
     ExternalProject_Add(${func_name}

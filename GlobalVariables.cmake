@@ -59,7 +59,7 @@
   mymessage(2 STATUS "VALUES - cmake_install_prefix: ${CMAKE_INSTALL_PREFIX}")
 
   string(TIMESTAMP CURRENT_DATETIME "%m%d%Y_%H%M%S")
-  mymessage(2 STATUS "Placing output of build in log file: ${CMAKE_CURRENT_BINARY_DIR}/build_${CURRENT_DATETIME}.log}")
+  mymessage(2 STATUS "Placing output of build in log file: ${CMAKE_CURRENT_BINARY_DIR}/build_${CURRENT_DATETIME}.log")
   set(CMAKE_BUILD_OUTPUT_LOGFILE ${CMAKE_CURRENT_BINARY_DIR}/build_${CURRENT_DATETIME}.log)
   
   set(RH9_RELEASE_FILE "/etc/os-release")

@@ -6,10 +6,15 @@ function(mymessage messagelevel messagemode messagetext)
 
   # Perform a mathematical calculation
 #  message(STATUS "Working on: ${messagelevel} <= ${GLOBAL_CMAKE_MESSAGE_LEVEL}")
+file(APPEND ${CMAKE_BUILD_OUTPUT_LOGFILE}.complete "${messagetext}\n")
 
 if (${messagelevel} LESS_EQUAL ${GLOBAL_CMAKE_MESSAGE_LEVEL})
 #if (${messagelevel} GREATER ${GLOBAL_CMAKE_MESSAGE_LEVEL})
-  message(${messagemode} "${messagetext}")
+#  message(${messagemode} "${messagetext}")
+#  if (DEFINED CMAKE_BUILD_OUTPUT_LOGFILE)
+#message("Value of CMAKE_BUILD_OUTPUT_LOGFILE is ${CMAKE_BUILD_OUTPUT_LOGFILE}")
+    file(APPEND ${CMAKE_BUILD_OUTPUT_LOGFILE} "${messagetext}\n")
+#  endif()
 else()
 #  message(${messagemode} "Would not write the message - ${messagetext}")
 endif()

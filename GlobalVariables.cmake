@@ -58,6 +58,13 @@
   mymessage(2 STATUS "VALUES - cmake_prefix_path: ${CMAKE_PREFIX_PATH}")
   mymessage(2 STATUS "VALUES - cmake_install_prefix: ${CMAKE_INSTALL_PREFIX}")
 
+  string(TIMESTAMP CURRENT_DATETIME "%m%d%Y_%H%M%S")
+  mymessage(2 STATUS "Placing output of build in log file: ${CMAKE_CURRENT_BINARY_DIR}/build_${CURRENT_DATETIME}.log}")
+  set(CMAKE_BUILD_OUTPUT_LOGFILE ${CMAKE_CURRENT_BINARY_DIR}/build_${CURRENT_DATETIME}.log)
+  
+  set(RH9_RELEASE_FILE "/etc/os-release")
+  mymessage(5 STATUS "DEFINING A VALUE FOR RH9_RELEASE_FILE - ${RH9_RELEASE_FILE}")
+
   #message(STATUS "CMAKE_MODULE_PATH now has a value of ${CMAKE_MODULE_PATH}")
 
   #  set (CMAKE_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX}/${APPEND_BUILD_TYPE})
@@ -615,16 +622,16 @@
     endif()
 
     if(DEFINED CACHE{CMAKE_PRINT_DEBUG})
-      message ("Set ${func_name}_DESTDIR - value has been set to - ${${func_name}_DESTDIR}")
+      mymessage (3 STATUS "Set ${func_name}_DESTDIR - value has been set to - ${${func_name}_DESTDIR}")
     endif()
 
     mymessage(2 STATUS "autoreconf dir is ${CMAKE_CURRENT_BINARY_DIR}/${func_name}-prefix")
     set(${func_name}_autoreconfdir "${CMAKE_CURRENT_BINARY_DIR}/${func_name}-prefix")
 
     if(EXISTS ${GLOBAL1}/${func_name}/configure.ac)
-      message (STATUS "Directory ${GLOBAL1}/${func_name} does exist!")
+      mymessage (5 STATUS "Directory ${GLOBAL1}/${func_name} does exist!")
     else()
-      message (STATUS "Directory ${GLOBAL1}/${func_name} does not exist")
+      mymessage (5 STATUS "Directory ${GLOBAL1}/${func_name} does not exist")
     endif()
 
     execute_process(
@@ -1275,6 +1282,7 @@
       endif()
       set(BUILD_ALL ON PARENT_SCOPE)
       set(BUILD_HDF5 ON PARENT_SCOPE)
+      set(BUILD_LAPACK ON)
       set(BUILD_LAPACK ON PARENT_SCOPE)
       set(BUILD_PLPLOT ON PARENT_SCOPE)
       set(BUILD_FFTW ON PARENT_SCOPE)
@@ -1284,6 +1292,18 @@
   # in the all build case, we do not build OPENMPI - must be a user specific request of OPENMPI
   #    set(BUILD_OPENMPI ON PARENT_SCOPE)
     endif()
+#   Need one more check here - in case BUILD_LAPACK was not yet included
+#   For now, due to a bug in RH9, if we are building on the redhat platform - OS9, we include a build of LAPACK
+#   whether the user asks for it or not.
+
+#    mymessage(2 STATUS "Value of BUILD_LAPACK IS ${BUILD_LAPACK}")
+
+    if ( NOT ${BUILD_LAPACK})
+      test_lapack_build_if_rh9()
+    else()
+      mymessage(2 STATUS "Building everything, not testing LAPACK")
+    endif()
+
     mymessage(2 STATUS "Package(s) to be built:")
     foreach (PACKAGE HDF5 LAPACK PLPLOT FFTW FGSL LAPACK95 XRAYLIB) 
       if ( BUILD_${PACKAGE} )
@@ -1293,6 +1313,97 @@
     endforeach()
   #  message(STATUS "Value of Check for fftw_devel is ${CHECK_FFTW_DEVEL} - and REQUIRE_OPENMP is ${REQUIRE_OPENMP}")
   #  set(REQUIRE_OPENMP ${REQUIRE_OPENMP} PARENT_SCOPE})
+  endfunction()
+  
+  ## ----------------------------------------------------------------------------------------
+
+  function(test_lapack_build_if_rh9)
+
+  if (${BUILD_LAPACK})
+    mymessage(2 STATUS "Building lapack already, no reason to test anything else")
+
+  else()
+    mymessage(2 STATUS "Not building lapack yet, let's check if we need to force the build")
+
+    if (EXISTS "${RH9_RELEASE_FILE}")
+      mymessage(5 STATUS "${RH9_RELEASE_FILE} exists")
+
+      # now check to see if it is RH9
+#      file(STRINGS "${RH9_RELEASE_FILE}" file_lines)
+      set(MATCHED_OS FALSE)
+      set(MATCHED_VERSION FALSE)
+#      foreach(line IN LISTS file_lines)
+#        if(line MATCHES "ID_LIKE")
+#          if(line MATCHES "rhel")
+#            message("Found a line matching the pattern 'ID_LIKE and rhel': ${line}")
+#	    set(MATCHED_OS TRUE)
+#          endif()
+#        elseif(line MATCHES "VERSION_ID")
+	  
+	
+#          message("Found a line matching the pattern 'VERSION_ID': ${line}")
+               
+#        endif()
+#      endforeach()
+      # this from google AI _ amazing!
+
+      file(STRINGS "${RH9_RELEASE_FILE}" os_release_content)
+      foreach(line ${os_release_content})
+        string(REGEX REPLACE "^[ ]+" "" line "${line}")
+        string(REGEX MATCH "^[^=]+" key "${line}")
+        string(REPLACE "${key}=" "" value "${line}")
+        set(${key} "${value}")
+      endforeach()
+      # Print the extracted values
+      if (DEFINED ID_LIKE AND DEFINED VERSION_ID)
+	mymessage(4 STATUS "OS ID_LIKE: ${ID_LIKE}")
+        mymessage(4 STATUS "OS Version ID: ${VERSION_ID}")
+
+        if(${ID_LIKE} MATCHES "fedora")
+          message("Found that ID_LIKE contains rhel")
+          set(MATCHED_OS TRUE)
+        endif()
+        set(MIN_VERSION_BAD "9.0")
+        set(MAX_VERSION_GOOD "10.0")
+        set(MIN_VERSION_BAD "8.0")
+        set(MAX_VERSION_GOOD "9.0")
+#        if(${VERSION_ID} VERSION_GREATER_EQUAL ${MIN_VERSION_BAD} AND ${VERSION_ID} VERSION_LESS ${MAX_VERSION_GOOD})
+        message("${VERSION_ID} >= ${MIN_VERSION_BAD}")
+#        if("${VERSION_ID}" VERSION_LESS_EQUAL "${MIN_VERSION_BAD}")
+	
+
+#        if("${MIN_VERSION_BAD}" VERSION_LESS_EQUAL "${VERSION_ID}")
+#        if("${MIN_VERSION_BAD}" VERSION_GREATER "${VERSION_ID}")
+#	  message("HERE3")
+#        endif()
+#        if ("${MAX_VERSION_GOOD}" VERSION_LESS_EQUAL "${VERSION_ID}" )
+#        if ("${VERSION_ID}" VERSION_LESS_EQUAL "${MAX_VERSION_GOOD}" )
+#	  message("HERE4")
+#        endif()
+
+        # this logic is not intuitive - it seems that the signs for each test are "reversed"
+        # but it works on my testing this way - don't understand
+        if("${MIN_VERSION_BAD}" VERSION_GREATER "${VERSION_ID}" AND "${VERSION_ID}" VERSION_LESS_EQUAL "${MAX_VERSION_GOOD}")
+          set(MATCHED_VERSION TRUE)
+	  mymessage(5 STATUS "THIS IS A BAD VERSION - ${MIN_VERSION_BAD} -  ${VERSION_ID} - ${MAX_VERSION_GOOD}")
+        endif()
+      endif()
+      
+      if (${MATCHED_OS} AND ${MATCHED_VERSION})
+        mymessage(1 STATUS "Our check of the os_release file matched our buggy RH9 version - need to build LAPACK")
+        set(BUILD_LAPACK ON PARENT_SCOPE)
+        set(BUILD_LAPACK ON)
+      else()
+ 	mymessage(4 STATUS "Value of MATCHED_OS for building lapack is ${MATCHED_OS}")
+ 	mymessage(4 STATUS "Value of MATCHED_VERSION for building lapack is ${MATCHED_VERSION}")
+        mymessage(1 STATUS "Initial testing - did not match the OS and/or version - not forcing build of LAPACK")
+      endif()
+    else()
+      # it does not exist - we are in the clear - do not have to force the build
+    endif()
+
+  endif()
+
   endfunction()
   
   ## ----------------------------------------------------------------------------------------

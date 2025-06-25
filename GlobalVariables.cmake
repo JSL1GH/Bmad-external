@@ -207,7 +207,97 @@
 
 ## ----------------------------------------------------------------------------------------
 
+#try to use cmake build, not configure
   function(now_really_build_hdf5)
+
+    set (func_name hdf5)
+    set (func_name_cap HDF5)
+
+    mymessage(3 STATUS "Now in function now_really_build_${func_name}")
+
+    setup_build_arguments(${func_name} ${func_name_cap})
+
+    get_property(GLOBAL2 GLOBAL PROPERTY EXTERNAL_BMAD_SOURCE_DIRECTORY)
+    get_property(GLOBAL1 GLOBAL PROPERTY BMAD_EXTERNAL_PACKAGES)
+
+    mymessage(3 STATUS "Value of ${func_name}_DESTDIR is ${${func_name}_DESTDIR}")
+
+    if (OWN_FIND_ALL_PACKAGE)
+      file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/Find${func_name_cap}.cmake DESTINATION ${${func_name}_DESTDIR})
+    endif()
+
+#I don't do anything for DIST_BUILD - and I don't handle shared/static - just shared
+
+    ExternalProject_Add(${func_name}
+	SOURCE_DIR
+          "${GLOBAL1}/${func_name}"
+
+	CMAKE_ARGS
+	  -DCMAKE_INSTALL_PREFIX:PATH=${${func_name}_DESTDIR}
+	  -DBUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
+	  # need this otherwise end up with ${func_name} and blas in /lib64!
+          -DBUILD_INDEX=OFF
+          -DBUILD_INDEX64_EXT_API=OFF
+          -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+#          ${${func_name}_OPENMP}
+#	  -DBUILD_DEPRECATED=YES
+#	  -DCBLAS=OFF
+#	  -DLAPACKE=ON
+#	  -DLAPACKE_WITH_TMG=ON
+	  # jsl - this from david - but I am adding library name!
+	  -DCMAKE_INSTALL_LIBDIR=${${func_name}_DESTDIR}/lib
+          # Scott suggests these should go to the include directory
+          # -DCMAKE_Fortran_MODULE_DIRECTORY=${${func_name}_DESTDIR}/lib/fortran/modules/${func_name}
+          -DCMAKE_Fortran_MODULE_DIRECTORY=${${func_name}_DESTDIR}/include
+          # CMAKE_CACHE_ARGS
+	  -DCMAKE_C_COMPILER:STRING=${CMAKE_C_COMPILER}
+	  -DCMAKE_CXX_COMPILER:STRING=${CMAKE_CXX_COMPILER}
+
+          -DBUILD_STATIC_LIBS=OFF
+	  -DUSE_RPATH=ON
+          -Wno-dev
+          -DHDF5_INSTALL_CMAKE_DIR=${${func_name}_DESTDIR}/lib
+          -DHDF5_BUILD_HL_LIB=ON
+          -DHDF5_BUILD_FORTRAN=ON
+	  -DHDF5_BUILD_GENERATORS=OFF
+	  -DHDF5_ENABLE_SZIP_SUPPORT=OFF
+
+
+#	${CMAKE_BINARY} -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} \
+#          -DCMAKE_INSTALL_PREFIX=${OUTPUT_DIR} \
+#	  -DBUILD_SHARED_LIBS=$SHARED \
+#	  -DBUILD_STATIC_LIBS=$STATIC \
+#	  -DUSE_RPATH=${ENABLE_RPATH} \
+#          -Wno-dev \
+#          -DHDF5_INSTALL_CMAKE_DIR=lib/cmake/hdf5 \
+#          -DHDF5_BUILD_HL_LIB=ON \
+#          -DHDF5_BUILD_FORTRAN=ON \
+#	  -DHDF5_BUILD_GENERATORS=OFF \
+#	  -DHDF5_ENABLE_SZIP_SUPPORT=OFF \
+#	  ..
+
+
+        BUILD_ALWAYS true
+	BUILD_COMMAND make
+	INSTALL_COMMAND make install
+	)
+
+    mymessage(3 STATUS "Set ${func_name}_DESTDIR - value After ExternalProject_Add is now - ${${func_name}_DESTDIR}")
+
+    install(
+        DIRECTORY
+        COMPONENT ${func_name}
+    	DESTINATION "${${func_name}_DESTDIR}"
+    	USE_SOURCE_PERMISSIONS
+    )
+
+    mymessage(3 STATUS "Finished setting up the build needed for ${func_name}")
+
+  endfunction()
+
+
+#rename something we don't use - this was the original configure build of hdf5
+  function(now_really_build_hdf51)
 
     set (func_name hdf5)
     set (func_name_cap HDF5)
@@ -1359,27 +1449,14 @@
 	mymessage(4 STATUS "OS ID_LIKE: ${ID_LIKE}")
         mymessage(4 STATUS "OS Version ID: ${VERSION_ID}")
 
-        if(${ID_LIKE} MATCHES "fedora")
-          message("Found that ID_LIKE contains rhel")
+        if(${ID_LIKE} MATCHES "rhel")
+#         message("Found that ID_LIKE contains rhel")
           set(MATCHED_OS TRUE)
         endif()
         set(MIN_VERSION_BAD "9.0")
         set(MAX_VERSION_GOOD "10.0")
-        set(MIN_VERSION_BAD "8.0")
-        set(MAX_VERSION_GOOD "9.0")
-#        if(${VERSION_ID} VERSION_GREATER_EQUAL ${MIN_VERSION_BAD} AND ${VERSION_ID} VERSION_LESS ${MAX_VERSION_GOOD})
-        message("${VERSION_ID} >= ${MIN_VERSION_BAD}")
-#        if("${VERSION_ID}" VERSION_LESS_EQUAL "${MIN_VERSION_BAD}")
+        message(4 STATUS "${VERSION_ID} >= ${MIN_VERSION_BAD}")
 	
-
-#        if("${MIN_VERSION_BAD}" VERSION_LESS_EQUAL "${VERSION_ID}")
-#        if("${MIN_VERSION_BAD}" VERSION_GREATER "${VERSION_ID}")
-#	  message("HERE3")
-#        endif()
-#        if ("${MAX_VERSION_GOOD}" VERSION_LESS_EQUAL "${VERSION_ID}" )
-#        if ("${VERSION_ID}" VERSION_LESS_EQUAL "${MAX_VERSION_GOOD}" )
-#	  message("HERE4")
-#        endif()
 
         # this logic is not intuitive - it seems that the signs for each test are "reversed"
         # but it works on my testing this way - don't understand

@@ -57,10 +57,6 @@
   mymessage(2 STATUS "VALUES - cmake_module_path: ${}")
   mymessage(2 STATUS "VALUES - cmake_prefix_path: ${CMAKE_PREFIX_PATH}")
   mymessage(2 STATUS "VALUES - cmake_install_prefix: ${CMAKE_INSTALL_PREFIX}")
-
-  string(TIMESTAMP CURRENT_DATETIME "%m%d%Y_%H%M%S")
-  mymessage(2 STATUS "Placing output of build in log file: ${CMAKE_CURRENT_BINARY_DIR}/build_${CURRENT_DATETIME}.log")
-  set(CMAKE_BUILD_OUTPUT_LOGFILE ${CMAKE_CURRENT_BINARY_DIR}/build_${CURRENT_DATETIME}.log)
   
   set(RH9_RELEASE_FILE "/etc/os-release")
   mymessage(5 STATUS "DEFINING A VALUE FOR RH9_RELEASE_FILE - ${RH9_RELEASE_FILE}")
@@ -228,6 +224,15 @@
 
 #I don't do anything for DIST_BUILD - and I don't handle shared/static - just shared
 
+    set(HDF5_CMAKE_BUILD_TYPE Release)
+    if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+      set(HDF5_CMAKE_BUILD_TYPE RelWithDebInfo)
+    endif()
+
+#        CMAKE_BUILD_TYPE=None
+#        [ "${BUILD_TYPE}" == "debug" ] && CMAKE_BUILD_TYPE=RelWithDebInfo
+#        [ "${BUILD_TYPE}" == "production" ] && CMAKE_BUILD_TYPE=Release
+
     ExternalProject_Add(${func_name}
 	SOURCE_DIR
           "${GLOBAL1}/${func_name}"
@@ -238,7 +243,7 @@
 	  # need this otherwise end up with ${func_name} and blas in /lib64!
           -DBUILD_INDEX=OFF
           -DBUILD_INDEX64_EXT_API=OFF
-          -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+          -DCMAKE_BUILD_TYPE=${HDF5_CMAKE_BUILD_TYPE}
 #          ${${func_name}_OPENMP}
 #	  -DBUILD_DEPRECATED=YES
 #	  -DCBLAS=OFF

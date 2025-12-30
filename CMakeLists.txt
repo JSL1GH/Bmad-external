@@ -25,15 +25,52 @@
 #This for ExternalProject_Add
   include(ExternalProject)
 
+
+function(mymessage messagelevel messagemode messagetext)
+
+      message(${messagemode} "${messagetext}")
+
+#if (${GLOBAL_CMAKE_MESSAGE_LEVEL} GREATER 4)
+#  message(STATUS "message has a messagelevel of ${messagelevel} and user cmake has asked for messages with a level of ${GLOBAL_CMAKE_MESSAGE_LEVEL}")
+#endif()
+
+  if (NOT DEFINED CMAKE_BUILD_OUTPUT_LOGFILE)
+    string(TIMESTAMP CURRENT_DATETIME "%m%d%Y_%H%M%S")
+#    message(STATUS "Placing output of build in log file: ${CMAKE_CURRENT_BINARY_DIR}/build_${CURRENT_DATETIME}.log")
+    set(CMAKE_BUILD_OUTPUT_LOGFILE ${CMAKE_CURRENT_BINARY_DIR}/build_${CURRENT_DATETIME}.log)
+  endif()
+
+#  message(STATUS "Working on: ${messagelevel} <= ${GLOBAL_CMAKE_MESSAGE_LEVEL}")
+  if (DEFINED CMAKE_BUILD_OUTPUT_LOGFILE)
+    file(APPEND ${CMAKE_BUILD_OUTPUT_LOGFILE}.complete "${messagetext}\n")
+
+    if (${messagelevel} LESS_EQUAL ${GLOBAL_CMAKE_MESSAGE_LEVEL})
+      file(APPEND ${CMAKE_BUILD_OUTPUT_LOGFILE} "${messagetext}\n")
+    endif()
+
+  else()
+
+    if (${messagelevel} LESS_EQUAL ${GLOBAL_CMAKE_MESSAGE_LEVEL})
+      message(${messagemode} "${messagetext}")
+    endif()
+
+  endif()
+
+endfunction()
+
+
+
+
+
   option(BUILD_SHARED_LIBS "Build using shared libraries" ON)
 #set_property(GLOBAL PROPERTY BMAD_BUILD_SHARED_LIBS "ON") 
   set(CMAKE_ROLLOUT_CMAKE_FILES ${CMAKE_CURRENT_SOURCE_DIR})
   set(CMAKE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src")
   set(CMAKE_BINARY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/build")
 
-  set(MESSAGE_FUNCTION_FILE ${CMAKE_ROLLOUT_CMAKE_FILES}/mymessage.txt)
+#  set(MESSAGE_FUNCTION_FILE ${CMAKE_ROLLOUT_CMAKE_FILES}/mymessage.txt)
 
-  include (${MESSAGE_FUNCTION_FILE})
+#  include (${MESSAGE_FUNCTION_FILE})
 
   set(GLOBAL_VARIABLE_FILE ${CMAKE_ROLLOUT_CMAKE_FILES}/GlobalVariables.cmake)
 

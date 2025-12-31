@@ -403,8 +403,9 @@ endfunction()
 	  -DUSE_RPATH=ON
           -Wno-dev
 #JSL - IS THIS IT?
-          -DHDF5_INSTALL_CMAKE_DIR=${${func_name}_DESTDIR}/lib
-          -DHDF5_INSTALL_CMAKE_DIR=${${func_name}_DESTDIR}/lib/cmake/hdf5
+#          -DHDF5_INSTALL_CMAKE_DIR=${${func_name}_DESTDIR}/lib
+#          -DHDF5_INSTALL_CMAKE_DIR=${${func_name}_DESTDIR}/lib/cmake/hdf5
+           -DHDF5_INSTALL_CMAKE_DIR=lib/cmake/hdf5
 #jsl - tested with Scott - but not using now!          -DHDF5_INSTALL_CMAKE_DIR=lib/cmake/HDF5
           -DHDF5_BUILD_HL_LIB=ON
 #could this line, recently added, be an issue?

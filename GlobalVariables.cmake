@@ -287,10 +287,12 @@ endfunction()
 #	  -DLAPACKE=ON
 #	  -DLAPACKE_WITH_TMG=ON
 	  # jsl - this from david - but I am adding library name!
-	  -DCMAKE_INSTALL_LIBDIR=${${func_name}_DESTDIR}/lib
+#	  -DCMAKE_INSTALL_LIBDIR=${${func_name}_DESTDIR}/lib
+	  -DCMAKE_INSTALL_LIBDIR=lib
           # Scott suggests these should go to the include directory
           # -DCMAKE_Fortran_MODULE_DIRECTORY=${${func_name}_DESTDIR}/lib/fortran/modules/${func_name}
-          -DCMAKE_Fortran_MODULE_DIRECTORY=${${func_name}_DESTDIR}/include
+#          -DCMAKE_Fortran_MODULE_DIRECTORY=${${func_name}_DESTDIR}/include
+          -DCMAKE_Fortran_MODULE_DIRECTORY=include
           # CMAKE_CACHE_ARGS
 	  -DCMAKE_C_COMPILER:STRING=${CMAKE_C_COMPILER}
 	  -DCMAKE_CXX_COMPILER:STRING=${CMAKE_CXX_COMPILER}
@@ -377,7 +379,8 @@ endfunction()
           "${GLOBAL1}/${func_name}"
 
 	CMAKE_ARGS
-	  -DCMAKE_INSTALL_PREFIX:PATH=${${func_name}_DESTDIR}
+#	  -DCMAKE_INSTALL_PREFIX:PATH=${${func_name}_DESTDIR}
+#	  -DCMAKE_INSTALL_PREFIX:PATH=${${func_name}_DESTDIR}
 	  -DBUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
 	  # need this otherwise end up with ${func_name} and blas in /lib64!
 	  -DHDF5_BUILD_CPP_LIB=OFF        # optional but recommended
@@ -391,10 +394,12 @@ endfunction()
 #	  -DLAPACKE=ON
 #	  -DLAPACKE_WITH_TMG=ON
 	  # jsl - this from david - but I am adding library name!
-	  -DCMAKE_INSTALL_LIBDIR=${${func_name}_DESTDIR}/lib
+#	  -DCMAKE_INSTALL_LIBDIR=${${func_name}_DESTDIR}/lib
+	  -DCMAKE_INSTALL_LIBDIR=lib
           # Scott suggests these should go to the include directory
           # -DCMAKE_Fortran_MODULE_DIRECTORY=${${func_name}_DESTDIR}/lib/fortran/modules/${func_name}
-          -DCMAKE_Fortran_MODULE_DIRECTORY=${${func_name}_DESTDIR}/include
+#          -DCMAKE_Fortran_MODULE_DIRECTORY=${${func_name}_DESTDIR}/include
+          -DCMAKE_Fortran_MODULE_DIRECTORY=include
           # CMAKE_CACHE_ARGS
 	  -DCMAKE_C_COMPILER:STRING=${CMAKE_C_COMPILER}
 	  -DCMAKE_CXX_COMPILER:STRING=${CMAKE_CXX_COMPILER}
@@ -440,6 +445,7 @@ endfunction()
     install(
         DIRECTORY
         COMPONENT ${func_name}
+#not sure about this
     	DESTINATION "${${func_name}_DESTDIR}"
     	USE_SOURCE_PERMISSIONS
     )
@@ -715,7 +721,8 @@ endfunction()
       SOURCE_DIR "${GLOBAL1}/${func_name}"
 
       CMAKE_ARGS
-        -DCMAKE_INSTALL_PREFIX:PATH=${${func_name}_DESTDIR}
+#        -DCMAKE_INSTALL_PREFIX:PATH=${${func_name}_DESTDIR}
+#        -DCMAKE_INSTALL_PREFIX:PATH=${${func_name}_DESTDIR}
         -DBUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
         -DDEFAULT_NO_DEVICES=ON
         -DDEFAULT_NO_QT_DEVICES=ON
@@ -725,7 +732,8 @@ endfunction()
         -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
         #Scott suggests these should go to the include directory
         # -DFORTRAN_MOD_DIR=${${func_name}_DESTDIR}/lib/fortran/modules
-        -DFORTRAN_MOD_DIR=${${func_name}_DESTDIR}/include
+#       -DFORTRAN_MOD_DIR=${${func_name}_DESTDIR}/include
+        -DFORTRAN_MOD_DIR=include
         ${${func_name}_OPENMP}
         # CMAKE_CACHE_ARGS
         -DCMAKE_C_COMPILER:STRING=${CMAKE_C_COMPILER}

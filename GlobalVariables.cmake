@@ -712,9 +712,10 @@ endfunction()
 
     mymessage(3 STATUS "Value of ${func_name}_DESTDIR is ${${func_name}_DESTDIR}")
 
-    if (OWN_FINDPACKAGE)
-      file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/Find${func_name_cap}.cmake DESTINATION ${${func_name}_DESTDIR})
-    endif()
+# we use cmake's plplot config file now
+#    if (OWN_FINDPACKAGE)
+#      file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/Find${func_name_cap}.cmake DESTINATION ${${func_name}_DESTDIR})
+#    endif()
 
     ExternalProject_Add(${func_name}
 
@@ -1219,10 +1220,11 @@ endfunction()
         file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/Find${func_name_cap}.cmake DESTINATION ${${func_name}_DESTDIR})
       endif()
     elseif (${func_name} STREQUAL "plplot")
-      mymessage(2 STATUS "Doing copy of Find...cmake file for plplot")
-      if (OWN_FINDPACKAGE)
-        file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/Find${func_name_cap}.cmake DESTINATION ${${func_name}_DESTDIR})
-      endif()
+      mymessage(2 STATUS "We do not copy Find...cmake file for plplot")
+#      mymessage(2 STATUS "Doing copy of Find...cmake file for plplot")
+#      if (OWN_FINDPACKAGE)
+#        file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/Find${func_name_cap}.cmake DESTINATION ${${func_name}_DESTDIR})
+#      endif()
     elseif (${func_name} STREQUAL "fftw")
       mymessage(2 STATUS "Doing copy of Find...cmake file for fftw")
       if (OWN_FINDPACKAGE)

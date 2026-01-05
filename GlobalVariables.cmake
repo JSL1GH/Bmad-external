@@ -380,7 +380,7 @@ endfunction()
 
 	CMAKE_ARGS
 #	  -DCMAKE_INSTALL_PREFIX:PATH=${${func_name}_DESTDIR}
-#	  -DCMAKE_INSTALL_PREFIX:PATH=${${func_name}_DESTDIR}
+	  -DCMAKE_INSTALL_PREFIX:PATH=${${func_name}_DESTDIR}
 	  -DBUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
 	  # need this otherwise end up with ${func_name} and blas in /lib64!
 	  -DHDF5_BUILD_CPP_LIB=OFF        # optional but recommended
@@ -723,7 +723,7 @@ endfunction()
 
       CMAKE_ARGS
 #        -DCMAKE_INSTALL_PREFIX:PATH=${${func_name}_DESTDIR}
-#        -DCMAKE_INSTALL_PREFIX:PATH=${${func_name}_DESTDIR}
+        -DCMAKE_INSTALL_PREFIX:PATH=${${func_name}_DESTDIR}
         -DBUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
         -DDEFAULT_NO_DEVICES=ON
         -DDEFAULT_NO_QT_DEVICES=ON
@@ -733,8 +733,8 @@ endfunction()
         -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
         #Scott suggests these should go to the include directory
         # -DFORTRAN_MOD_DIR=${${func_name}_DESTDIR}/lib/fortran/modules
-#       -DFORTRAN_MOD_DIR=${${func_name}_DESTDIR}/include
-        -DFORTRAN_MOD_DIR=include
+       -DFORTRAN_MOD_DIR=${${func_name}_DESTDIR}/include
+#        -DFORTRAN_MOD_DIR=include
         ${${func_name}_OPENMP}
         # CMAKE_CACHE_ARGS
         -DCMAKE_C_COMPILER:STRING=${CMAKE_C_COMPILER}

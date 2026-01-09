@@ -994,6 +994,7 @@ endfunction()
       file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/Find${pre_func_name_cap}.cmake  DESTINATION ${${pre_func_name}_DESTDIR})
     endif()
 
+
     find_package(${pre_func_name_cap} QUIET)
 #    mymessage(4 STATUS "JUST A TEST! - ${pre_func_name_cap} - HINTS - To LOOK IN ${CMAKE_MODULE_PATH} ${CMAKE_PREFIX_PATH}")
     if(${pre_func_name_cap}_VERSION)
@@ -1119,9 +1120,17 @@ endfunction()
 
 #    set(${func_name}_srcdir "${CMAKE_CURRENT_BINARY_DIR}/${func_name}-prefix")
 
+#[[ JSL - COMMENTING OUT FOR NOW - MAYBE BETTER WAY?
     if (OWN_FINDPACKAGE)
       file(COPY ${CMAKE_ROLLOUT_CMAKE_FILES}/Find${func_name_cap}.cmake  DESTINATION ${${func_name}_DESTDIR})
     endif()
+]]
+
+#JSL _ NOT SURE IF THIS IS ALL CORRECT YET!
+    install(FILES
+        "${CMAKE_CURRENT_SOURCE_DIR}/cmake/FindFGSL.cmake"
+        DESTINATION "${BMAD_ECOSYSTEM_INSTALL_CMAKEDIR}/modules"
+    )
 
     mymessage(4 STATUS "Execute process autoreconf now!")
 

@@ -1306,6 +1306,13 @@ endfunction()
       
 #    set (${func_name}_OPENMP "")
 #    setopenmp(${func_name_cap} ${func_name})
+
+# putting this in globally - maybe should just be APPLE - not sure
+    if (DEFINED CMAKE_Fortran_COMPILER)
+      set(CMAKE_Fortran_COMPILER_TO_USE ${CMAKE_Fortran_COMPILER})
+    else()
+      set(CMAKE_Fortran_COMPILER_TO_USE "gfortran")
+    endif()
   
     ExternalProject_Add(${func_name}
       SOURCE_DIR "${GLOBAL1}/${func_name}"
@@ -1313,7 +1320,7 @@ endfunction()
       CMAKE_ARGS
         -DCMAKE_INSTALL_PREFIX:PATH=${${func_name}_DESTDIR}
         -DBUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
-        -DCMAKE_Fortran_COMPILER:STRING=gfortran
+        -DCMAKE_Fortran_COMPILER:STRING=${MAKE_Fortran_COMPILER_TO_USE}
         -DACC_CMAKE_VERSION=3.13.4
         -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
         ${${func_name}_OPENMP}

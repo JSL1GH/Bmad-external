@@ -1127,10 +1127,10 @@ endfunction()
 ]]
 
 #JSL _ NOT SURE IF THIS IS ALL CORRECT YET!
-    install(FILES
-        "${CMAKE_CURRENT_SOURCE_DIR}/cmake/FindFGSL.cmake"
-        DESTINATION "${BMAD_ECOSYSTEM_INSTALL_CMAKEDIR}/modules"
-    )
+#    install(FILES
+#        "${CMAKE_CURRENT_SOURCE_DIR}/cmake/FindFGSL.cmake"
+#        DESTINATION "${BMAD_ECOSYSTEM_INSTALL_CMAKEDIR}/modules"
+#    )
 
     mymessage(4 STATUS "Execute process autoreconf now!")
 
